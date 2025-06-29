@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>KT 오피스넷 요금 계산기 (상세)</title>
+    <title>KT 통합 요금 계산기 (소호/비즈)</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
     <style>
@@ -49,6 +49,7 @@
             border-radius: 0.75rem;
             cursor: pointer;
             transition: all 0.2s ease-in-out;
+            position: relative;
         }
         .option-label:hover {
             border-color: #93c5fd;
@@ -66,15 +67,18 @@
             width: 1.25rem;
             height: 1.25rem;
             border-radius: 9999px;
-            background-color: #3b82f6;
+            background-color: #9ca3af;
             color: white;
             font-weight: bold;
             font-size: 0.875rem;
             cursor: pointer;
             transition: background-color 0.2s;
+            position: absolute;
+            top: 0.5rem;
+            right: 0.5rem;
         }
         .help-toggle:hover {
-            background-color: #2563eb;
+            background-color: #4b5563;
         }
         @keyframes spin {
             to { transform: rotate(360deg); }
@@ -110,7 +114,7 @@
     <div class="container mx-auto p-4 md:p-8 max-w-5xl">
         <div class="bg-white p-6 rounded-2xl shadow-lg mb-6">
             <div class="text-center">
-                <h1 class="text-2xl md:text-3xl font-bold text-gray-900">KT 오피스넷 요금 계산기</h1>
+                <h1 class="text-2xl md:text-3xl font-bold text-gray-900">KT 통합 요금 계산기 (소호/비즈)</h1>
                 <p class="text-sm text-gray-500 mt-2">문의/가입: 1588-0114</p>
             </div>
         </div>
@@ -118,9 +122,30 @@
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
             <!-- Left Side: Options -->
             <div class="lg:col-span-2 space-y-6">
+                <!-- Package Selector -->
+                <div class="bg-white p-6 rounded-2xl shadow-lg">
+                    <h2 class="text-xl font-bold mb-4 border-b pb-2">1. 패키지 선택</h2>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-2" id="package-selector">
+                        <label for="package-soho" class="option-label selected">
+                            <input type="radio" id="package-soho" name="package-type" value="soho" class="hidden" onchange="populateOptions(); calculateTotal();" checked>
+                            <div class="text-center">
+                                <span class="font-bold text-lg">소호 패키지</span>
+                                <span class="block text-sm text-gray-500">소상공인, 매장, 1인 기업</span>
+                            </div>
+                        </label>
+                        <label for="package-biz" class="option-label">
+                            <input type="radio" id="package-biz" name="package-type" value="biz" class="hidden" onchange="populateOptions(); calculateTotal();">
+                            <div class="text-center">
+                                <span class="font-bold text-lg">비즈 성공팩</span>
+                                <span class="block text-sm text-gray-500">중소기업, 다회선, IT인프라</span>
+                            </div>
+                        </label>
+                    </div>
+                </div>
+                
                 <!-- Main Product Options -->
                 <div class="bg-white p-6 rounded-2xl shadow-lg">
-                    <h2 class="text-xl font-bold mb-4 border-b pb-2">1. 기본 상품 선택</h2>
+                    <h2 class="text-xl font-bold mb-4 border-b pb-2">2. 기본 상품 선택</h2>
                     <div class="space-y-4">
                         <div>
                             <label class="font-semibold text-gray-700">인터넷</label>
@@ -132,25 +157,21 @@
                         </div>
                         <div>
                             <label class="font-semibold text-gray-700">전화 (선택)</label>
-                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 mt-2" id="phone-options"></div>
+                            <div class="grid grid-cols-1 sm:grid-cols-3 gap-2 mt-2" id="phone-options"></div>
                         </div>
                     </div>
                 </div>
 
                 <!-- Fixed IP -->
                 <div class="bg-white p-6 rounded-2xl shadow-lg">
-                     <h2 class="text-xl font-bold mb-4 border-b pb-2 flex items-center">
-                        2. 고정IP 추가 (선택)
-                        <span class="help-toggle ml-2" data-key="fixed-ip" title="고정IP란?">?</span>
-                        <span class="ml-auto text-xs text-white bg-blue-500 px-2 py-0.5 rounded-full">필요시 선택</span>
-                    </h2>
+                     <h2 class="text-xl font-bold mb-4 border-b pb-2">3. 고정IP 추가 (선택)</h2>
                     <p class="text-sm text-gray-500 mb-4">자체 서버 운영, 외부 CCTV 접속 등 특별한 목적이 있을 때 선택합니다.</p>
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-2" id="fixed-ip-selector"></div>
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-2" id="fixed-ip-selector"></div>
                 </div>
 
                 <!-- Add-on Services -->
                 <div class="bg-white p-6 rounded-2xl shadow-lg">
-                    <h2 class="text-xl font-bold mb-4 border-b pb-2">3. 부가서비스 선택 (선택)</h2>
+                    <h2 id="addon-title" class="text-xl font-bold mb-4 border-b pb-2">4. 솔루션 선택 (선택)</h2>
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-4" id="addon-services"></div>
                 </div>
             </div>
@@ -201,7 +222,7 @@
                     <p class="mb-4 text-gray-600">사장님의 사업장에 딱 맞는 요금제를 추천해 드릴게요!</p>
                     <div class="mb-4">
                         <label for="business-type" class="block font-semibold text-gray-700 mb-1">업종</label>
-                        <input type="text" id="business-type" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="예: 카페, 식당, 사무실">
+                        <input type="text" id="business-type" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="예: 카페, 식당, 사무실, IT기업">
                     </div>
                     <div class="mb-6">
                         <label for="employee-count" class="block font-semibold text-gray-700 mb-1">주로 사용하는 PC(또는 직원) 수</label>
@@ -222,7 +243,7 @@
 
 
     <script>
-        // --- DATA ---
+        // --- DATA (Unified for SOHO & BIZ with new features) ---
         const pricingData = {
           "internet": [
             { "name": "오피스넷 100mb", "price": 30800 },
@@ -230,49 +251,60 @@
             { "name": "오피스넷 1GB", "price": 49500 }
           ],
           "tv": [
-            { "name": "베이직 (236채널)", "price": 15400 },
-            { "name": "라이트 (240채널)", "price": 16500 },
-            { "name": "에센스 (266채널)", "price": 19800 }
+            { "name": "Genie TV 슬림", "price": 11880 },
+            { "name": "Genie TV 라이트", "price": 14256 },
+            { "name": "Genie TV 에센스", "price": 18216 }
           ],
           "phone": [
-            { "name": "일반 전화", "price": 6050 },
-            { "name": "인터넷 전화", "price": 6294 }
+             { "name": "일반 전화", "price": 5148 },
+             { "name": "인터넷 전화", "price": 1100 }
           ],
           "fixedIP": [
-            { "name": "고정IP (100M)", "price": 11000 },
-            { "name": "고정IP (500M)", "price": 22000 },
-            { "name": "고정IP (1G)", "price": 27500 }
+             { "name": "고정IP (100M)", "price": 11000 },
+             { "name": "고정IP (500M)", "price": 22000 },
+             { "name": "고정IP (1G)", "price": 27500 }
           ],
           "addOns": [
-            { "name": "오피스넷 공유기", "price": 1100, "description": "Giga-WiFi 공유기 임대" },
-            { "name": "보안(V3 Lite)", "price": 1100, "description": "PC 백신 프로그램" },
-            { "name": "홈페이지+웹메일", "price": 5500, "description": "기본 홈페이지 제작 + 웹메일 서비스" }
-          ],
-          "discounts": [
-              { "condition": { "internet_speed": "500mb", "has_tv_or_phone": true }, "amount": 5500 },
-              { "condition": { "internet_speed": "1GB", "has_tv_or_phone": true }, "amount": 5500 },
-              { "condition": { "internet_speed": "500mb", "has_phone_only": true }, "amount": 2200 },
-              { "condition": { "internet_speed": "1GB", "has_phone_only": true }, "amount": 2200 }
+            // Shared Add-ons
+            { "name": "오피스넷 공유기", "price": 1100, "description": "Giga-WiFi 공유기 임대", "package": "all", "helpKey": "addon-wifi" },
+            // SOHO Add-ons
+            { "name": "카드결제기 (VAN)", "price": 0, "description": "인터넷 요금 4,400원 추가 할인", "package": "soho", "helpKey": "addon-van" },
+            { "name": "하이오더 (테이블오더)", "price": 22000, "description": "인터넷 요금 5,500원 추가 할인", "package": "soho", "helpKey": "addon-hiorder" },
+            { "name": "GiGAeyes (CCTV)", "price": 63250, "description": "4대 기준, 인터넷 요금 10% 추가 할인", "package": "soho", "helpKey": "addon-gigaeyes" },
+            // BIZ Add-ons
+            { "name": "매니지드 서버", "price": 145200, "discountedPrice": 137940, "description": "결합 시 5% 할인 (DELL R250 기준)", "package": "biz", "helpKey": "addon-server" },
+            { "name": "세무로", "price": 4400, "discountedPrice": 3960, "description": "결합 시 10% 할인", "package": "biz", "helpKey": "addon-semuro" },
+            { "name": "관리형 무선랜", "price": 17490, "discountedPrice": 16600, "description": "결합 시 약 5% 할인 (Ktki-200 기준)", "package": "biz", "helpKey": "addon-managed-wifi" }
           ]
         };
 
         const benefitData = [
-            { "condition": "100mb_단독", "benefit": 90000 },
-            { "condition": "500mb_단독", "benefit": 140000 },
-            { "condition": "1GB_단독", "benefit": 140000 },
-            { "condition": "100mb_TV결합", "benefit": 370000 },
-            { "condition": "500mb_TV결합", "benefit": 450000 },
-            { "condition": "1GB_TV결합", "benefit": 450000 }
+             { "condition": "100mb_단독", "benefit": 90000 },
+             { "condition": "500mb_단독", "benefit": 140000 },
+             { "condition": "1GB_단독", "benefit": 140000 },
+             { "condition": "100mb_TV결합", "benefit": 370000 },
+             { "condition": "500mb_TV결합", "benefit": 450000 },
+             { "condition": "1GB_TV결합", "benefit": 450000 }
         ];
         
-        const helpTexts = { 'fixed-ip': { title: '고정IP, 언제 필요한가요?', content: `<p class="mb-3"><strong>"내 사무실에 고정 책상이 있는 것과 같아요!"</strong></p><p class="mb-2">고정IP는 항상 동일한 인터넷 주소를 사용하는 방식입니다.</p><p class="mb-2"><strong>이런 경우에 필요해요:</strong></p><ul class="list-disc list-inside mb-2"><li>외부에서 매장 CCTV 확인</li><li>자체 웹사이트 서버 운영</li><li>원격 근무 시스템(VPN) 구축</li><li>특별한 보안이 필요한 업무</li></ul><p>일반적인 매장 운영(포스기, 일반 인터넷)에는 유동IP로도 충분합니다.</p>` } };
+        const helpTexts = { 
+            'addon-wifi': { title: '오피스넷 공유기', content: `<p>사무실 및 매장 환경에 최적화된 Giga-WiFi 공유기를 임대하여 안정적인 무선 인터넷 환경을 제공합니다.</p>` },
+            'addon-van': { title: '카드결제기 (VAN)', content: `<p class="mb-2">제휴 카드결제 단말기(VAN)를 인터넷과 함께 사용할 경우, 인터넷 요금에서 직접 <strong>4,400원</strong>이 차감 할인됩니다.</p><p><strong>조건:</strong></p><ul class="list-disc list-inside"><li>월 1건 이상 카드 결제 실적이 필요합니다.</li><li>월 100건 이상 사용 시 단말기 및 관리비가 면제될 수 있습니다. (별도 조건 확인 필요)</li><li>할인은 특정 가입 시점 이후 36개월로 제한될 수 있습니다.</li></ul>` },
+            'addon-hiorder': { title: '하이오더 (테이블오더)', content: `<p class="mb-2">'하이오더'와 같은 테이블 오더 솔루션을 인터넷과 함께 '으랏차차 패키지'로 묶을 경우, 인터넷 요금에서 <strong>5,500원</strong>이 할인됩니다.</p><p class="mb-3">또한, 하이오더 자체 요금도 할인된 가격(월 22,000원)으로 제공되어 이중 혜택을 받을 수 있습니다.</p>` },
+            'addon-gigaeyes': { title: 'GiGAeyes (CCTV)', content: '<p class="mb-2">고화질 카메라 4대를 기본으로 제공하는 지능형 영상보안 솔루션입니다.</p><p>인터넷과 결합 시 인터넷 요금의 <strong>10%</strong>가 할인되는 혜택이 적용됩니다.</p>' },
+            'addon-server': { title: '매니지드 서버', content: `<p class="mb-2">물리적 서버(예: DELL R250)를 KT 데이터센터에 두고 웹서버, DB서버 등으로 사용할 수 있도록 임대 및 관리해주는 서비스입니다.</p><p class="mb-3">IT 인프라를 아웃소싱하여 안정성과 보안을 확보하고 싶은 기업에 적합합니다. 비즈 성공팩 결합 시 <strong>약 5% 할인</strong>된 요금으로 이용 가능합니다.</p>` },
+            'addon-semuro': { title: '세무로', content: `<p class="mb-2">복잡한 세무/회계 업무를 간편하게 처리할 수 있도록 돕는 솔루션입니다. 비즈 성공팩 결합 시 <strong>10% 할인</strong>된 월 3,960원으로 이용할 수 있습니다.</p>` },
+            'addon-managed-wifi': { title: '관리형 무선랜', content: `<p class="mb-2">사무실, 매장 등 넓은 공간에 끊김 없고 안정적인 Wi-Fi 환경을 구축하고, 전문가가 원격으로 네트워크 상태를 모니터링 및 관리해주는 서비스입니다. 비즈 성공팩 결합 시 <strong>약 5% 할인</strong>이 적용됩니다.</p>` }
+        };
 
         // --- Elements ---
         const elements = {
+            packageSelector: document.getElementById('package-selector'),
             internetOptions: document.getElementById('internet-options'),
             tvOptions: document.getElementById('tv-options'),
             phoneOptions: document.getElementById('phone-options'),
             fixedIpSelector: document.getElementById('fixed-ip-selector'),
+            addonTitle: document.getElementById('addon-title'),
             addonServices: document.getElementById('addon-services'),
             summary: document.getElementById('summary'),
             totalPrice: document.getElementById('total-price'),
@@ -297,7 +329,7 @@
 
         // --- Functions ---
         function createOption(type, name, value, title, price, isChecked = false) {
-            const id = `${name}-${value.replace(/\s+/g, '-')}`;
+            const id = `${name}-${value.replace(/[\s\(\)]+/g, '-')}`;
             return `
                 <label for="${id}" class="option-label ${isChecked ? 'selected' : ''}">
                     <input type="${type}" id="${id}" name="${name}" value="${value}" class="hidden" onchange="calculateTotal()" ${isChecked ? 'checked' : ''}>
@@ -308,43 +340,52 @@
                 </label>`;
         }
         
-        function createCheckbox(name, value, title, price, description) {
-            const id = `addon-${value.replace(/\s+/g, '-')}`;
+        function createCheckbox(name, value, title, price, description, helpKey) {
+            const id = `addon-${value.replace(/[\s\(\)]+/g, '-')}`;
             return `
-                <label for="${id}" class="option-label flex items-start">
-                    <input type="checkbox" id="${id}" name="${name}" value="${price}" data-name="${title}" class="hidden" onchange="calculateTotal()">
+                <label for="${id}" class="option-label flex items-start p-4">
+                    <input type="checkbox" id="${id}" name="${name}" value="${value}" class="hidden" onchange="calculateTotal()">
                     <div class="flex-grow">
                         <span class="font-medium">${title}</span>
                         <p class="text-sm text-gray-600">+${price.toLocaleString()}원</p>
                         ${description ? `<p class="text-xs text-gray-500 mt-1">${description}</p>` : ''}
                     </div>
+                    ${helpKey ? `<span class="help-toggle ml-2" data-key="${helpKey}" title="상세정보">?</span>` : ''}
                 </label>`;
         }
 
         function populateOptions() {
+            const selectedPackage = document.querySelector('input[name="package-type"]:checked').value;
+
+            // Populate basic options (always visible)
             elements.internetOptions.innerHTML = pricingData.internet.map((s, i) => createOption('radio', 'internet', s.name, s.name, s.price, i === 0)).join('');
             elements.tvOptions.innerHTML = createOption('radio', 'tv', 'none', '선택 안함', 0, true) + pricingData.tv.map(s => createOption('radio', 'tv', s.name, s.name, s.price)).join('');
             elements.phoneOptions.innerHTML = createOption('radio', 'phone', 'none', '선택 안함', 0, true) + pricingData.phone.map(s => createOption('radio', 'phone', s.name, s.name, s.price)).join('');
             elements.fixedIpSelector.innerHTML = createOption('radio', 'fixed-ip', 'none', '선택 안함', 0, true) + pricingData.fixedIP.map(s => createOption('radio', 'fixed-ip', s.name, s.name, s.price)).join('');
-            elements.addonServices.innerHTML = pricingData.addOns.map(s => createCheckbox('addon', s.name, s.name, s.price, s.description)).join('');
+            
+            // Populate add-ons based on selected package
+            const relevantAddons = pricingData.addOns.filter(addon => addon.package === 'all' || addon.package === selectedPackage);
+            elements.addonServices.innerHTML = relevantAddons.map(s => createCheckbox('addon', s.name, s.name, s.price, s.description, s.helpKey)).join('');
+            elements.addonTitle.textContent = selectedPackage === 'soho' ? '4. 소상공인 솔루션 선택 (선택)' : '4. 기업용 IT 솔루션 선택 (선택)';
         }
 
         function calculateTotal() {
             let total = 0;
             let summaryHTML = '';
-            currentSelections = { internet: null, tv: null, phone: null, fixed: null, addons: [], totalPrice: 0, benefit: 0 };
+            currentSelections = { internet: null, tv: null, phone: null, fixedIP: null, addons: [], totalPrice: 0, benefit: 0 };
 
             const getSelected = (name) => document.querySelector(`input[name="${name}"]:checked`)?.value;
 
+            const selectedPackage = getSelected('package-type');
             const selectedInternetName = getSelected('internet');
             const selectedTvName = getSelected('tv');
             const selectedPhoneName = getSelected('phone');
             const selectedFixedIpName = getSelected('fixed-ip');
-            const selectedAddons = document.querySelectorAll('input[name="addon"]:checked');
+            const selectedAddons = Array.from(document.querySelectorAll('input[name="addon"]:checked'));
 
             if (!selectedInternetName) return;
 
-            // Base products
+            // --- Base Prices ---
             const internetPlan = pricingData.internet.find(p => p.name === selectedInternetName);
             total += internetPlan.price;
             summaryHTML += `<div class="summary-item"><span class="summary-title">${internetPlan.name}</span><span class="summary-price">+ ${internetPlan.price.toLocaleString()}원</span></div>`;
@@ -364,72 +405,105 @@
                 currentSelections.phone = phonePlan.name;
             }
 
-            // Discount
-            const internetSpeed = internetPlan.name.includes('100mb') ? '100mb' : internetPlan.name.includes('500mb') ? '500mb' : '1GB';
-            const hasTv = !!tvPlan;
-            const hasPhone = !!phonePlan;
-            
-            let discount = 0;
-            if (hasTv || hasPhone) {
-                if ((internetSpeed === '500mb' || internetSpeed === '1GB')) {
-                    discount = 5500;
-                }
-            }
-             if (hasPhone && !hasTv) {
-                 if ((internetSpeed === '500mb' || internetSpeed === '1GB')) {
-                    discount = 2200;
-                }
-            }
-
-            if (discount > 0) {
-                total -= discount;
-                summaryHTML += `<div class="summary-item"><span class="summary-title text-red-600">결합 할인</span><span class="summary-price text-red-600 font-semibold">- ${discount.toLocaleString()}원</span></div>`;
-            }
-
-            // Fixed IP & Addons
             const fixedIpPlan = pricingData.fixedIP.find(p => p.name === selectedFixedIpName);
             if (fixedIpPlan) {
                 total += fixedIpPlan.price;
                 summaryHTML += `<div class="summary-item"><span class="summary-title">${fixedIpPlan.name}</span><span class="summary-price">+ ${fixedIpPlan.price.toLocaleString()}원</span></div>`;
-                currentSelections.fixed = fixedIpPlan.name;
-            }
-
-            if (selectedAddons.length > 0) {
-                summaryHTML += `<div class="summary-item pt-4 mt-2 border-t border-dashed"><span class="summary-title font-bold">부가서비스</span><span class="summary-price"></span></div>`;
-                selectedAddons.forEach(addon => {
-                    const price = parseInt(addon.value);
-                    const name = addon.dataset.name;
-                    total += price;
-                    summaryHTML += `<div class="summary-item"><span class="summary-title">${name}</span><span class="summary-price">+ ${price.toLocaleString()}원</span></div>`;
-                    currentSelections.addons.push(name);
-                });
+                currentSelections.fixedIP = fixedIpPlan.name;
             }
             
+            if (selectedAddons.length > 0) {
+                const addonTitle = selectedPackage === 'soho' ? '소상공인 솔루션' : '기업용 IT 솔루션';
+                summaryHTML += `<div class="summary-item pt-4 mt-2 border-t border-dashed"><span class="summary-title font-bold">${addonTitle}</span><span class="summary-price"></span></div>`;
+                selectedAddons.forEach(addonInput => {
+                    const addonName = addonInput.value;
+                    const addonPlan = pricingData.addOns.find(a => a.name === addonName);
+                    if (addonPlan) {
+                        total += addonPlan.price;
+                        summaryHTML += `<div class="summary-item"><span class="summary-title">${addonPlan.name}</span><span class="summary-price">+ ${addonPlan.price.toLocaleString()}원</span></div>`;
+                        currentSelections.addons.push(addonName);
+                    }
+                });
+            }
+
+            // --- Discounts ---
+            let totalDiscount = 0;
+            let discountHTML = '';
+            const internetSpeed = internetPlan.name.includes('100mb') ? '100mb' : internetPlan.name.includes('500mb') ? '500mb' : '1GB';
+
+            if (selectedPackage === 'soho') {
+                // SOHO Discount Logic
+                let internetDiscount = 0;
+                let reason = '';
+                if (tvPlan && (internetSpeed === '500mb' || internetSpeed === '1GB')) {
+                    internetDiscount = 5500;
+                    reason = '인터넷+TV 결합';
+                } else if (phonePlan && (internetSpeed === '500mb' || internetSpeed === '1GB')) {
+                    internetDiscount = 2200;
+                    reason = '인터넷+전화 결합';
+                }
+                if (internetDiscount > 0) {
+                    totalDiscount += internetDiscount;
+                    discountHTML += `<div class="summary-item"><span class="summary-title text-red-600">${reason} 할인</span><span class="summary-price text-red-600 font-semibold">- ${internetDiscount.toLocaleString()}원</span></div>`;
+                }
+
+                // Additional SOHO solution discounts
+                if (currentSelections.addons.includes('카드결제기 (VAN)')) {
+                    const vanDiscount = 4400;
+                    totalDiscount += vanDiscount;
+                    discountHTML += `<div class="summary-item"><span class="summary-title text-red-600">카드결제기 연동 할인</span><span class="summary-price text-red-600 font-semibold">- ${vanDiscount.toLocaleString()}원</span></div>`;
+                }
+                if (currentSelections.addons.includes('하이오더 (테이블오더)')) {
+                    const hiOrderDiscount = 5500;
+                    totalDiscount += hiOrderDiscount;
+                    discountHTML += `<div class="summary-item"><span class="summary-title text-red-600">하이오더 결합 할인</span><span class="summary-price text-red-600 font-semibold">- ${hiOrderDiscount.toLocaleString()}원</span></div>`;
+                }
+                if (currentSelections.addons.includes('GiGAeyes (CCTV)')) {
+                    const gigaeyesDiscount = Math.round(internetPlan.price * 0.1);
+                    totalDiscount += gigaeyesDiscount;
+                    discountHTML += `<div class="summary-item"><span class="summary-title text-red-600">GiGAeyes 결합 할인</span><span class="summary-price text-red-600 font-semibold">- ${gigaeyesDiscount.toLocaleString()}원</span></div>`;
+                }
+
+            } else { // BIZ Discount Logic
+                const isCombined = tvPlan || phonePlan || fixedIpPlan || selectedAddons.length > 0;
+                if (isCombined) {
+                    const internetDiscount = Math.round(internetPlan.price * 0.1);
+                    totalDiscount += internetDiscount;
+                    discountHTML += `<div class="summary-item"><span class="summary-title text-red-600">인터넷 결합 할인 (10%)</span><span class="summary-price text-red-600 font-semibold">- ${internetDiscount.toLocaleString()}원</span></div>`;
+                }
+
+                selectedAddons.forEach(addonInput => {
+                    const addonPlan = pricingData.addOns.find(a => a.name === addonInput.value);
+                    if (addonPlan && addonPlan.discountedPrice) {
+                        const itemDiscount = addonPlan.price - addonPlan.discountedPrice;
+                        totalDiscount += itemDiscount;
+                        discountHTML += `<div class="summary-item"><span class="summary-title text-red-600">${addonPlan.name} 할인</span><span class="summary-price text-red-600 font-semibold">- ${itemDiscount.toLocaleString()}원</span></div>`;
+                    }
+                });
+            }
+
+            if (totalDiscount > 0) {
+                summaryHTML += `<div class="summary-item pt-4 mt-2 border-t border-dashed"><span class="summary-title font-bold text-red-600">결합 할인 내역</span><span class="summary-price"></span></div>` + discountHTML;
+            }
+            
+            total -= totalDiscount;
+
             // Benefit
             let benefitKey = `${internetSpeed}_`;
-            if (hasTv) {
-                benefitKey += 'TV결합';
-            } else {
-                benefitKey += '단독';
-            }
+            benefitKey += tvPlan ? 'TV결합' : '단독';
             const benefit = benefitData.find(b => b.condition === benefitKey)?.benefit || 0;
             currentSelections.benefit = benefit;
 
             // Update UI
             elements.summary.innerHTML = summaryHTML || `<p class="text-center text-gray-500 p-8">서비스를 선택해주세요.</p>`;
-            elements.totalPrice.textContent = `${total.toLocaleString()}원`;
+            elements.totalPrice.textContent = `${Math.max(0, total).toLocaleString()}원`;
             elements.benefitAmount.textContent = `${benefit.toLocaleString()}원`;
             currentSelections.totalPrice = total;
 
-            // Update selected styles
             document.querySelectorAll('input[type="radio"], input[type="checkbox"]').forEach(input => {
                 const label = input.closest('.option-label');
                 if (label) {
-                    if (input.checked) {
-                        label.classList.add('selected');
-                    } else {
-                        label.classList.remove('selected');
-                    }
+                    label.classList.toggle('selected', input.checked);
                 }
             });
         }
@@ -456,8 +530,8 @@
                 .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
                 .replace(/#### (.*)/g, '<h4 class="text-lg font-bold mt-4 mb-2 text-gray-800">$1</h4>')
                 .replace(/\* (.*)/g, (match, p1) => `<li>${p1.trim()}</li>`)
-                .replace(/(<li>.*<\/li>)/g, '<ul>$1</ul>') // Wrap LIs in ULs
-                .replace(/<\/ul>\n<ul>/g, '') // Merge adjacent ULs
+                .replace(/(<li>.*<\/li>)/gs, '<ul>$1</ul>')
+                .replace(/<\/ul>\s*<ul>/g, '')
                 .replace(/\n/g, '<br>');
         }
 
@@ -470,26 +544,29 @@
             elements.geminiResultContainer.classList.remove('hidden');
             elements.geminiLoading.style.display = 'block';
             elements.geminiResult.style.display = 'none';
+            
+            const selectedPackage = document.querySelector('input[name="package-type"]:checked').value;
+            const packageKor = selectedPackage === 'soho' ? '소호 패키지' : '비즈 성공팩';
 
             const unselectedAddons = pricingData.addOns
-                .map(s => s.name)
-                .filter(name => !currentSelections.addons.includes(name));
+                .filter(addon => (addon.package === 'all' || addon.package === selectedPackage) && !currentSelections.addons.includes(addon.name))
+                .map(s => s.name);
 
             const prompt = `
-                당신은 KT 소상공인 전문 컨설턴트입니다. 친절하고 이해하기 쉬운 말투로 답변해주세요. 아래 정보를 바탕으로 고객에게 맞춤 컨설팅을 제공합니다.
+                당신은 KT 기업/소상공인 전문 컨설턴트입니다. 친절하고 이해하기 쉬운 말투로 답변해주세요. 아래 정보를 바탕으로 고객에게 맞춤 컨설팅을 제공합니다.
 
                 1.  **고객 정보:**
                     * **업종:** ${businessType}
                     * **직원(PC) 수:** ${employeeCount}명
-                2.  **고객이 선택한 상품:**
+                2.  **고객이 선택한 '${packageKor}' 상품:**
                     * **인터넷:** ${currentSelections.internet}
                     * **TV:** ${currentSelections.tv || '선택 안함'}
                     * **전화:** ${currentSelections.phone || '선택 안함'}
-                    * **고정IP:** ${currentSelections.fixed || '선택 안함'}
-                    * **선택한 부가서비스:** ${currentSelections.addons.length > 0 ? currentSelections.addons.join(', ') : '선택 안함'}
+                    * **고정IP:** ${currentSelections.fixedIP || '선택 안함'}
+                    * **선택한 솔루션:** ${currentSelections.addons.length > 0 ? currentSelections.addons.join(', ') : '선택 안함'}
                     * **월 예상 요금:** ${currentSelections.totalPrice.toLocaleString()}원
                     * **예상 사은품:** ${currentSelections.benefit.toLocaleString()}원
-                3.  **고객이 선택하지 않은 부가서비스 목록:** ${unselectedAddons.join(', ')}
+                3.  **고객이 선택하지 않은 솔루션 목록:** ${unselectedAddons.join(', ')}
 
                 ---
 
@@ -499,16 +576,16 @@
                 * 선택한 인터넷 속도가 ${businessType} 업종과 ${employeeCount}명 규모에 적절한지 평가해주세요. 긍정적으로 평가해주세요.
                 * 선택한 다른 상품들에 대해 간단히 코멘트해주세요.
 
-                #### ✨ 사장님께 추천하는 추가 부가서비스
-                * 위 "고객이 선택하지 않은 부가서비스 목록" 중에서, 고객의 업종(${businessType})에 가장 유용할 것 같은 서비스 1~2개를 추천하고, 왜 유용한지 구체적인 예시를 들어 설명해주세요.
-                * 추천이 어렵다면 "현재 선택하신 구성이 사장님 사업장에 아주 적합해 보입니다!" 라고 언급해주세요.
+                #### ✨ 대표님께 추천하는 추가 솔루션
+                * 위 "고객이 선택하지 않은 솔루션 목록" 중에서, 고객의 업종(${businessType})에 가장 유용할 것 같은 서비스 1~2개를 추천하고, 왜 유용한지 구체적인 예시를 들어 설명해주세요.
+                * 추천이 어렵다면 "현재 선택하신 구성이 대표님 사업장에 아주 적합해 보입니다!" 라고 언급해주세요.
 
                 #### 최종 코멘트
-                * 사장님의 성공을 응원하는 희망찬 메시지로 마무리해주세요.
+                * 대표님의 사업 번창을 응원하는 희망찬 메시지로 마무리해주세요.
             `;
 
             try {
-                const apiKey = "AIzaSyBpltrFvnHe7g54ScQW6bo30zXk1OgN-DA"; // This will be handled by the execution environment.
+                const apiKey = ""; // API 키는 실행 환경에서 제공됩니다.
                 const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
                 const payload = { contents: [{ role: "user", parts: [{ text: prompt }] }] };
                 const response = await fetch(apiUrl, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
