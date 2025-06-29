@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KT Office Network Calendar</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f5f7fa;
+            color: #333;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 2rem 0;
+            text-align: center;
+            margin-bottom: 2rem;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .subtitle {
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+
+        .calendar-container {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            padding: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .calendar-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+
+        .month-nav {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .nav-btn {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: background-color 0.3s;
+        }
+
+        .nav-btn:hover {
+            background: #5a6fd8;
+        }
+
+        .current-month {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .calendar {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 1rem;
+        }
+
+        .calendar th,
+        .calendar td {
+            width: 14.28%;
+            height: 80px;
+            text-align: center;
+            vertical-align: top;
+            border: 1px solid #e1e8ed;
+            position: relative;
+        }
+
+        .calendar th {
+            background: #f8f9fa;
+            font-weight: bold;
+            color: #667eea;
+            height: 40px;
+            vertical-align: middle;
+        }
+
+        .calendar td {
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .calendar td:hover {
+            background: #f0f8ff;
+        }
+
+        .date-number {
+            position: absolute;
+            top: 5px;
+            left: 8px;
+            font-weight: bold;
+        }
+
+        .today {
+            background: #e6f3ff;
+            border: 2px solid #667eea;
+        }
+
+        .other-month {
+            color: #ccc;
+            background: #fafafa;
+        }
+
+        .event-indicator {
+            width: 6px;
+            height: 6px;
+            background: #ff6b6b;
+            border-radius: 50%;
+            position: absolute;
+            bottom: 5px;
+            right: 5px;
+        }
+
+        .features {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+
+        .feature-card {
+            background: white;
+            padding: 2rem;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+
+        .feature-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+        }
+
+        .feature-title {
+            font-size: 1.3rem;
+            font-weight: bold;
+            margin-bottom: 1rem;
+            color: #333;
+        }
+
+        .feature-description {
+            color: #666;
+            line-height: 1.6;
+        }
+
+        footer {
+            text-align: center;
+            padding: 2rem 0;
+            color: #666;
+            border-top: 1px solid #e1e8ed;
+            margin-top: 3rem;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 10px;
+            }
+
+            h1 {
+                font-size: 2rem;
+            }
+
+            .calendar-header {
+                flex-direction: column;
+                gap: 1rem;
+            }
+
+            .features {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>KT Office Network Calendar</h1>
+            <p class="subtitle">한국 오피스 네트워크 캘린더</p>
+        </header>
+
+        <div class="calendar-container">
+            <div class="calendar-header">
+                <div class="month-nav">
+                    <button class="nav-btn" onclick="previousMonth()">◀ 이전</button>
+                    <span class="current-month" id="currentMonth">2025년 6월</span>
+                    <button class="nav-btn" onclick="nextMonth()">다음 ▶</button>
+                </div>
+                <button class="nav-btn" onclick="goToToday()">오늘</button>
+            </div>
+
+            <table class="calendar">
+                <thead>
+                    <tr>
+                        <th>일</th>
+                        <th>월</th>
+                        <th>화</th>
+                        <th>수</th>
+                        <th>목</th>
+                        <th>금</th>
+                        <th>토</th>
+                    </tr>
+                </thead>
+                <tbody id="calendarBody">
+                    <!-- 캘린더 날짜가 여기에 동적으로 생성됩니다 -->
+                </tbody>
+            </table>
+        </div>
+
+        <div class="features">
+            <div class="feature-card">
+                <div class="feature-icon">📅</div>
+                <h3 class="feature-title">일정 관리</h3>
+                <p class="feature-description">직관적인 인터페이스로 일정을 쉽게 추가하고 관리할 수 있습니다.</p>
+            </div>
+
+            <div class="feature-card">
+                <div class="feature-icon">👥</div>
+                <h3 class="feature-title">팀 협업</h3>
+                <p class="feature-description">팀원들과 일정을 공유하고 함께 협업할 수 있는 기능을 제공합니다.</p>
+            </div>
+
+            <div class="feature-card">
+                <div class="feature-icon">🔔</div>
+                <h3 class="feature-title">알림 서비스</h3>
+                <p class="feature-description">중요한 일정을 놓치지 않도록 알림 기능을 통해 미리 알려드립니다.</p>
+            </div>
+        </div>
+
+        <footer>
+            <p>&copy; 2025 KT Office Network Calendar. All rights reserved.</p>
+        </footer>
+    </div>
+
+    <script>
+        let currentDate = new Date();
+        let currentMonth = currentDate.getMonth();
+        let currentYear = currentDate.getFullYear();
+
+        function generateCalendar(month, year) {
+            const monthNames = [
+                "1월", "2월", "3월", "4월", "5월", "6월",
+                "7월", "8월", "9월", "10월", "11월", "12월"
+            ];
+
+            document.getElementById("currentMonth").textContent = `${year}년 ${monthNames[month]}`;
+
+            const firstDay = new Date(year, month, 1).getDay();
+            const lastDate = new Date(year, month + 1, 0).getDate();
+            const prevLastDate = new Date(year, month, 0).getDate();
+
+            let calendarHTML = "";
+            let date = 1;
+
+            // 6주 표시
+            for (let i = 0; i < 6; i++) {
+                calendarHTML += "<tr>";
+
+                for (let j = 0; j < 7; j++) {
+                    if (i === 0 && j < firstDay) {
+                        // 이전 달의 날짜
+                        const prevDate = prevLastDate - firstDay + j + 1;
+                        calendarHTML += `<td class="other-month">
+                            <span class="date-number">${prevDate}</span>
+                        </td>`;
+                    } else if (date > lastDate) {
+                        // 다음 달의 날짜
+                        const nextDate = date - lastDate;
+                        calendarHTML += `<td class="other-month">
+                            <span class="date-number">${nextDate}</span>
+                        </td>`;
+                        date++;
+                    } else {
+                        // 현재 달의 날짜
+                        const today = new Date();
+                        const isToday = (date === today.getDate() && month === today.getMonth() && year === today.getFullYear());
+                        const todayClass = isToday ? "today" : "";
+                        
+                        calendarHTML += `<td class="${todayClass}" onclick="selectDate(${date})">
+                            <span class="date-number">${date}</span>
+                            ${Math.random() > 0.8 ? '<div class="event-indicator"></div>' : ''}
+                        </td>`;
+                        date++;
+                    }
+                }
+
+                calendarHTML += "</tr>";
+
+                // 모든 날짜를 표시했으면 종료
+                if (date > lastDate && i >= 4) break;
+            }
+
+            document.getElementById("calendarBody").innerHTML = calendarHTML;
+        }
+
+        function previousMonth() {
+            currentMonth--;
+            if (currentMonth < 0) {
+                currentMonth = 11;
+                currentYear--;
+            }
+            generateCalendar(currentMonth, currentYear);
+        }
+
+        function nextMonth() {
+            currentMonth++;
+            if (currentMonth > 11) {
+                currentMonth = 0;
+                currentYear++;
+            }
+            generateCalendar(currentMonth, currentYear);
+        }
+
+        function goToToday() {
+            const today = new Date();
+            currentMonth = today.getMonth();
+            currentYear = today.getFullYear();
+            generateCalendar(currentMonth, currentYear);
+        }
+
+        function selectDate(date) {
+            alert(`${currentYear}년 ${currentMonth + 1}월 ${date}일이 선택되었습니다.`);
+        }
+
+        // 초기 캘린더 생성
+        generateCalendar(currentMonth, currentYear);
+    </script>
+</body>
+</html>
