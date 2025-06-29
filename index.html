@@ -3,360 +3,561 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>KT Office Network Calendar</title>
+    <title>KT 오피스넷 요금 계산기 (상세)</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: #f5f7fa;
-            color: #333;
+            font-family: 'Noto Sans KR', sans-serif;
         }
-
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 20px;
-        }
-
-        header {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            padding: 2rem 0;
-            text-align: center;
-            margin-bottom: 2rem;
-            border-radius: 10px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-        }
-
-        h1 {
-            font-size: 2.5rem;
-            margin-bottom: 0.5rem;
-        }
-
-        .subtitle {
-            font-size: 1.2rem;
-            opacity: 0.9;
-        }
-
-        .calendar-container {
-            background: white;
-            border-radius: 10px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-            padding: 2rem;
-            margin-bottom: 2rem;
-        }
-
-        .calendar-header {
+        .summary-item {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 2rem;
+            padding: 8px 0;
+            border-bottom: 1px solid #e5e7eb;
+            font-size: 14px;
         }
-
-        .month-nav {
-            display: flex;
-            align-items: center;
-            gap: 1rem;
+        .summary-item:last-child {
+            border-bottom: none;
         }
-
-        .nav-btn {
-            background: #667eea;
-            color: white;
-            border: none;
-            padding: 0.5rem 1rem;
-            border-radius: 5px;
-            cursor: pointer;
-            font-size: 1rem;
-            transition: background-color 0.3s;
+        .summary-title {
+            color: #4b5563;
         }
-
-        .nav-btn:hover {
-            background: #5a6fd8;
+        .summary-price {
+            color: #1f2937;
+            font-weight: 500;
         }
-
-        .current-month {
+        .total-price {
             font-size: 1.5rem;
+            font-weight: 700;
+            color: #1d4ed8;
+        }
+        .benefit-amount {
+             font-size: 1.5rem;
+             font-weight: 700;
+             color: #059669;
+        }
+        [type='radio']:checked, [type='checkbox']:checked {
+            background-color: #2563eb;
+            border-color: #2563eb;
+        }
+        .option-label {
+            display: block;
+            padding: 1rem;
+            border: 1px solid #d1d5db;
+            border-radius: 0.75rem;
+            cursor: pointer;
+            transition: all 0.2s ease-in-out;
+        }
+        .option-label:hover {
+            border-color: #93c5fd;
+            background-color: #eff6ff;
+        }
+        .option-label.selected {
+            border-color: #2563eb;
+            background-color: #dbeafe;
+            box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.5);
+        }
+        .help-toggle {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 1.25rem;
+            height: 1.25rem;
+            border-radius: 9999px;
+            background-color: #3b82f6;
+            color: white;
             font-weight: bold;
-            color: #333;
-        }
-
-        .calendar {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 1rem;
-        }
-
-        .calendar th,
-        .calendar td {
-            width: 14.28%;
-            height: 80px;
-            text-align: center;
-            vertical-align: top;
-            border: 1px solid #e1e8ed;
-            position: relative;
-        }
-
-        .calendar th {
-            background: #f8f9fa;
-            font-weight: bold;
-            color: #667eea;
-            height: 40px;
-            vertical-align: middle;
-        }
-
-        .calendar td {
+            font-size: 0.875rem;
             cursor: pointer;
             transition: background-color 0.2s;
         }
-
-        .calendar td:hover {
-            background: #f0f8ff;
+        .help-toggle:hover {
+            background-color: #2563eb;
         }
-
-        .date-number {
-            position: absolute;
-            top: 5px;
-            left: 8px;
-            font-weight: bold;
+        @keyframes spin {
+            to { transform: rotate(360deg); }
         }
-
-        .today {
-            background: #e6f3ff;
-            border: 2px solid #667eea;
-        }
-
-        .other-month {
-            color: #ccc;
-            background: #fafafa;
-        }
-
-        .event-indicator {
-            width: 6px;
-            height: 6px;
-            background: #ff6b6b;
+        .spinner {
+            display: inline-block;
+            width: 2rem;
+            height: 2rem;
+            border: 4px solid rgba(0, 0, 0, 0.1);
+            border-left-color: #3b82f6;
             border-radius: 50%;
-            position: absolute;
-            bottom: 5px;
-            right: 5px;
+            animation: spin 1s linear infinite;
         }
-
-        .features {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 2rem;
-            margin-top: 2rem;
+        .gemini-result h4 {
+            font-weight: 700;
+            font-size: 1.1rem;
+            margin-top: 1rem;
+            margin-bottom: 0.5rem;
+            color: #1e3a8a;
         }
-
-        .feature-card {
-            background: white;
-            padding: 2rem;
-            border-radius: 10px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-            text-align: center;
-        }
-
-        .feature-icon {
-            font-size: 3rem;
+         .gemini-result ul {
+            list-style-type: disc;
+            padding-left: 1.5rem;
             margin-bottom: 1rem;
         }
-
-        .feature-title {
-            font-size: 1.3rem;
-            font-weight: bold;
-            margin-bottom: 1rem;
-            color: #333;
-        }
-
-        .feature-description {
-            color: #666;
-            line-height: 1.6;
-        }
-
-        footer {
-            text-align: center;
-            padding: 2rem 0;
-            color: #666;
-            border-top: 1px solid #e1e8ed;
-            margin-top: 3rem;
-        }
-
-        @media (max-width: 768px) {
-            .container {
-                padding: 10px;
-            }
-
-            h1 {
-                font-size: 2rem;
-            }
-
-            .calendar-header {
-                flex-direction: column;
-                gap: 1rem;
-            }
-
-            .features {
-                grid-template-columns: 1fr;
-            }
+         .gemini-result strong {
+            color: #1d4ed8;
         }
     </style>
 </head>
-<body>
-    <div class="container">
-        <header>
-            <h1>KT Office Network Calendar</h1>
-            <p class="subtitle">한국 오피스 네트워크 캘린더</p>
-        </header>
+<body class="bg-gray-50 text-gray-800">
 
-        <div class="calendar-container">
-            <div class="calendar-header">
-                <div class="month-nav">
-                    <button class="nav-btn" onclick="previousMonth()">◀ 이전</button>
-                    <span class="current-month" id="currentMonth">2025년 6월</span>
-                    <button class="nav-btn" onclick="nextMonth()">다음 ▶</button>
+    <div class="container mx-auto p-4 md:p-8 max-w-5xl">
+        <div class="bg-white p-6 rounded-2xl shadow-lg mb-6">
+            <div class="text-center">
+                <h1 class="text-2xl md:text-3xl font-bold text-gray-900">KT 오피스넷 요금 계산기</h1>
+                <p class="text-sm text-gray-500 mt-2">문의/가입: 1588-0114</p>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <!-- Left Side: Options -->
+            <div class="lg:col-span-2 space-y-6">
+                <!-- Main Product Options -->
+                <div class="bg-white p-6 rounded-2xl shadow-lg">
+                    <h2 class="text-xl font-bold mb-4 border-b pb-2">1. 기본 상품 선택</h2>
+                    <div class="space-y-4">
+                        <div>
+                            <label class="font-semibold text-gray-700">인터넷</label>
+                            <div class="grid grid-cols-1 sm:grid-cols-3 gap-2 mt-2" id="internet-options"></div>
+                        </div>
+                        <div>
+                            <label class="font-semibold text-gray-700">TV (선택)</label>
+                            <div class="grid grid-cols-1 sm:grid-cols-3 gap-2 mt-2" id="tv-options"></div>
+                        </div>
+                        <div>
+                            <label class="font-semibold text-gray-700">전화 (선택)</label>
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 mt-2" id="phone-options"></div>
+                        </div>
+                    </div>
                 </div>
-                <button class="nav-btn" onclick="goToToday()">오늘</button>
+
+                <!-- Fixed IP -->
+                <div class="bg-white p-6 rounded-2xl shadow-lg">
+                     <h2 class="text-xl font-bold mb-4 border-b pb-2 flex items-center">
+                        2. 고정IP 추가 (선택)
+                        <span class="help-toggle ml-2" data-key="fixed-ip" title="고정IP란?">?</span>
+                        <span class="ml-auto text-xs text-white bg-blue-500 px-2 py-0.5 rounded-full">필요시 선택</span>
+                    </h2>
+                    <p class="text-sm text-gray-500 mb-4">자체 서버 운영, 외부 CCTV 접속 등 특별한 목적이 있을 때 선택합니다.</p>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-2" id="fixed-ip-selector"></div>
+                </div>
+
+                <!-- Add-on Services -->
+                <div class="bg-white p-6 rounded-2xl shadow-lg">
+                    <h2 class="text-xl font-bold mb-4 border-b pb-2">3. 부가서비스 선택 (선택)</h2>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4" id="addon-services"></div>
+                </div>
             </div>
 
-            <table class="calendar">
-                <thead>
-                    <tr>
-                        <th>일</th>
-                        <th>월</th>
-                        <th>화</th>
-                        <th>수</th>
-                        <th>목</th>
-                        <th>금</th>
-                        <th>토</th>
-                    </tr>
-                </thead>
-                <tbody id="calendarBody">
-                    <!-- 캘린더 날짜가 여기에 동적으로 생성됩니다 -->
-                </tbody>
-            </table>
+            <!-- Right Side: Summary -->
+            <div class="lg:col-span-1">
+                <div class="bg-white p-6 rounded-2xl shadow-lg sticky top-8">
+                    <h2 class="text-xl font-bold mb-4 border-b pb-2 text-center">견적 요약</h2>
+                    <div id="summary" class="space-y-2 mb-4 min-h-[200px]"></div>
+                    <div class="text-center pt-4 border-t-2 border-gray-300">
+                        <p class="text-gray-600 font-semibold">월 예상 요금 (VAT 포함)</p>
+                        <p id="total-price" class="total-price mt-1">0원</p>
+                    </div>
+                    <div class="mt-4 text-center bg-green-50 p-3 rounded-lg border border-green-200">
+                        <p class="text-green-800 font-semibold">예상 사은품 혜택</p>
+                        <p id="benefit-amount" class="benefit-amount mt-1 text-base">0원</p>
+                    </div>
+                    <div class="mt-4">
+                        <button id="gemini-consult-button" class="w-full bg-gradient-to-r from-blue-500 to-indigo-600 text-white font-bold py-3 px-4 rounded-lg hover:from-blue-600 hover:to-indigo-700 transition-all shadow-md">
+                            ✨ AI 컨설팅 받기
+                        </button>
+                    </div>
+                </div>
+            </div>
         </div>
-
-        <div class="features">
-            <div class="feature-card">
-                <div class="feature-icon">📅</div>
-                <h3 class="feature-title">일정 관리</h3>
-                <p class="feature-description">직관적인 인터페이스로 일정을 쉽게 추가하고 관리할 수 있습니다.</p>
-            </div>
-
-            <div class="feature-card">
-                <div class="feature-icon">👥</div>
-                <h3 class="feature-title">팀 협업</h3>
-                <p class="feature-description">팀원들과 일정을 공유하고 함께 협업할 수 있는 기능을 제공합니다.</p>
-            </div>
-
-            <div class="feature-card">
-                <div class="feature-icon">🔔</div>
-                <h3 class="feature-title">알림 서비스</h3>
-                <p class="feature-description">중요한 일정을 놓치지 않도록 알림 기능을 통해 미리 알려드립니다.</p>
-            </div>
-        </div>
-
-        <footer>
-            <p>&copy; 2025 KT Office Network Calendar. All rights reserved.</p>
-        </footer>
     </div>
 
+    <!-- Help Modal -->
+    <div id="help-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50 hidden">
+        <div class="bg-white rounded-lg shadow-xl max-w-md w-full">
+            <div class="p-5 border-b flex justify-between items-center">
+                <h3 id="modal-title" class="text-xl font-bold text-gray-800"></h3>
+                <button id="modal-close" class="text-2xl text-gray-500 hover:text-gray-900">&times;</button>
+            </div>
+            <div id="modal-content" class="p-5 text-gray-700 leading-relaxed"></div>
+        </div>
+    </div>
+
+    <!-- Gemini Modal -->
+    <div id="gemini-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-[60] hidden">
+        <div class="bg-white rounded-lg shadow-xl max-w-lg w-full flex flex-col max-h-[90vh]">
+            <div class="p-5 border-b flex justify-between items-center flex-shrink-0">
+                <h3 class="text-xl font-bold text-gray-800">✨ AI 맞춤 컨설팅</h3>
+                <button id="gemini-modal-close" class="text-2xl text-gray-500 hover:text-gray-900">&times;</button>
+            </div>
+            <div class="p-5 overflow-y-auto">
+                <div id="gemini-form">
+                    <p class="mb-4 text-gray-600">사장님의 사업장에 딱 맞는 요금제를 추천해 드릴게요!</p>
+                    <div class="mb-4">
+                        <label for="business-type" class="block font-semibold text-gray-700 mb-1">업종</label>
+                        <input type="text" id="business-type" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="예: 카페, 식당, 사무실">
+                    </div>
+                    <div class="mb-6">
+                        <label for="employee-count" class="block font-semibold text-gray-700 mb-1">주로 사용하는 PC(또는 직원) 수</label>
+                        <input type="number" id="employee-count" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="예: 5">
+                    </div>
+                    <button id="start-gemini-analysis" class="w-full bg-blue-600 text-white font-bold py-3 px-4 rounded-lg hover:bg-blue-700 transition-all">분석 시작하기</button>
+                </div>
+                <div id="gemini-result-container" class="hidden">
+                    <div id="gemini-loading" class="text-center py-8">
+                        <div class="spinner mx-auto"></div>
+                        <p class="mt-4 text-gray-600">AI 컨설턴트가 분석 중입니다...</p>
+                    </div>
+                    <div id="gemini-result" class="gemini-result leading-relaxed text-gray-700"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
     <script>
-        let currentDate = new Date();
-        let currentMonth = currentDate.getMonth();
-        let currentYear = currentDate.getFullYear();
+        // --- DATA ---
+        const pricingData = {
+          "internet": [
+            { "name": "오피스넷 100mb", "price": 30800 },
+            { "name": "오피스넷 500mb", "price": 44000 },
+            { "name": "오피스넷 1GB", "price": 49500 }
+          ],
+          "tv": [
+            { "name": "베이직 (236채널)", "price": 15400 },
+            { "name": "라이트 (240채널)", "price": 16500 },
+            { "name": "에센스 (266채널)", "price": 19800 }
+          ],
+          "phone": [
+            { "name": "일반 전화", "price": 6050 },
+            { "name": "인터넷 전화", "price": 6294 }
+          ],
+          "fixedIP": [
+            { "name": "고정IP (100M)", "price": 11000 },
+            { "name": "고정IP (500M)", "price": 22000 },
+            { "name": "고정IP (1G)", "price": 27500 }
+          ],
+          "addOns": [
+            { "name": "오피스넷 공유기", "price": 1100, "description": "Giga-WiFi 공유기 임대" },
+            { "name": "보안(V3 Lite)", "price": 1100, "description": "PC 백신 프로그램" },
+            { "name": "홈페이지+웹메일", "price": 5500, "description": "기본 홈페이지 제작 + 웹메일 서비스" }
+          ],
+          "discounts": [
+              { "condition": { "internet_speed": "500mb", "has_tv_or_phone": true }, "amount": 5500 },
+              { "condition": { "internet_speed": "1GB", "has_tv_or_phone": true }, "amount": 5500 },
+              { "condition": { "internet_speed": "500mb", "has_phone_only": true }, "amount": 2200 },
+              { "condition": { "internet_speed": "1GB", "has_phone_only": true }, "amount": 2200 }
+          ]
+        };
 
-        function generateCalendar(month, year) {
-            const monthNames = [
-                "1월", "2월", "3월", "4월", "5월", "6월",
-                "7월", "8월", "9월", "10월", "11월", "12월"
-            ];
+        const benefitData = [
+            { "condition": "100mb_단독", "benefit": 90000 },
+            { "condition": "500mb_단독", "benefit": 140000 },
+            { "condition": "1GB_단독", "benefit": 140000 },
+            { "condition": "100mb_TV결합", "benefit": 370000 },
+            { "condition": "500mb_TV결합", "benefit": 450000 },
+            { "condition": "1GB_TV결합", "benefit": 450000 }
+        ];
+        
+        const helpTexts = { 'fixed-ip': { title: '고정IP, 언제 필요한가요?', content: `<p class="mb-3"><strong>"내 사무실에 고정 책상이 있는 것과 같아요!"</strong></p><p class="mb-2">고정IP는 항상 동일한 인터넷 주소를 사용하는 방식입니다.</p><p class="mb-2"><strong>이런 경우에 필요해요:</strong></p><ul class="list-disc list-inside mb-2"><li>외부에서 매장 CCTV 확인</li><li>자체 웹사이트 서버 운영</li><li>원격 근무 시스템(VPN) 구축</li><li>특별한 보안이 필요한 업무</li></ul><p>일반적인 매장 운영(포스기, 일반 인터넷)에는 유동IP로도 충분합니다.</p>` } };
 
-            document.getElementById("currentMonth").textContent = `${year}년 ${monthNames[month]}`;
+        // --- Elements ---
+        const elements = {
+            internetOptions: document.getElementById('internet-options'),
+            tvOptions: document.getElementById('tv-options'),
+            phoneOptions: document.getElementById('phone-options'),
+            fixedIpSelector: document.getElementById('fixed-ip-selector'),
+            addonServices: document.getElementById('addon-services'),
+            summary: document.getElementById('summary'),
+            totalPrice: document.getElementById('total-price'),
+            benefitAmount: document.getElementById('benefit-amount'),
+            helpModal: document.getElementById('help-modal'),
+            modalTitle: document.getElementById('modal-title'),
+            modalContent: document.getElementById('modal-content'),
+            modalClose: document.getElementById('modal-close'),
+            geminiModal: document.getElementById('gemini-modal'),
+            geminiForm: document.getElementById('gemini-form'),
+            geminiResultContainer: document.getElementById('gemini-result-container'),
+            geminiLoading: document.getElementById('gemini-loading'),
+            geminiResult: document.getElementById('gemini-result'),
+            geminiConsultButton: document.getElementById('gemini-consult-button'),
+            geminiModalClose: document.getElementById('gemini-modal-close'),
+            startGeminiAnalysis: document.getElementById('start-gemini-analysis'),
+            businessType: document.getElementById('business-type'),
+            employeeCount: document.getElementById('employee-count'),
+        };
 
-            const firstDay = new Date(year, month, 1).getDay();
-            const lastDate = new Date(year, month + 1, 0).getDate();
-            const prevLastDate = new Date(year, month, 0).getDate();
+        let currentSelections = {};
 
-            let calendarHTML = "";
-            let date = 1;
+        // --- Functions ---
+        function createOption(type, name, value, title, price, isChecked = false) {
+            const id = `${name}-${value.replace(/\s+/g, '-')}`;
+            return `
+                <label for="${id}" class="option-label ${isChecked ? 'selected' : ''}">
+                    <input type="${type}" id="${id}" name="${name}" value="${value}" class="hidden" onchange="calculateTotal()" ${isChecked ? 'checked' : ''}>
+                    <div class="text-center">
+                        <span class="font-medium">${title}</span>
+                        <span class="block text-xs text-gray-500">+${price.toLocaleString()}원</span>
+                    </div>
+                </label>`;
+        }
+        
+        function createCheckbox(name, value, title, price, description) {
+            const id = `addon-${value.replace(/\s+/g, '-')}`;
+            return `
+                <label for="${id}" class="option-label flex items-start">
+                    <input type="checkbox" id="${id}" name="${name}" value="${price}" data-name="${title}" class="hidden" onchange="calculateTotal()">
+                    <div class="flex-grow">
+                        <span class="font-medium">${title}</span>
+                        <p class="text-sm text-gray-600">+${price.toLocaleString()}원</p>
+                        ${description ? `<p class="text-xs text-gray-500 mt-1">${description}</p>` : ''}
+                    </div>
+                </label>`;
+        }
 
-            // 6주 표시
-            for (let i = 0; i < 6; i++) {
-                calendarHTML += "<tr>";
+        function populateOptions() {
+            elements.internetOptions.innerHTML = pricingData.internet.map((s, i) => createOption('radio', 'internet', s.name, s.name, s.price, i === 0)).join('');
+            elements.tvOptions.innerHTML = createOption('radio', 'tv', 'none', '선택 안함', 0, true) + pricingData.tv.map(s => createOption('radio', 'tv', s.name, s.name, s.price)).join('');
+            elements.phoneOptions.innerHTML = createOption('radio', 'phone', 'none', '선택 안함', 0, true) + pricingData.phone.map(s => createOption('radio', 'phone', s.name, s.name, s.price)).join('');
+            elements.fixedIpSelector.innerHTML = createOption('radio', 'fixed-ip', 'none', '선택 안함', 0, true) + pricingData.fixedIP.map(s => createOption('radio', 'fixed-ip', s.name, s.name, s.price)).join('');
+            elements.addonServices.innerHTML = pricingData.addOns.map(s => createCheckbox('addon', s.name, s.name, s.price, s.description)).join('');
+        }
 
-                for (let j = 0; j < 7; j++) {
-                    if (i === 0 && j < firstDay) {
-                        // 이전 달의 날짜
-                        const prevDate = prevLastDate - firstDay + j + 1;
-                        calendarHTML += `<td class="other-month">
-                            <span class="date-number">${prevDate}</span>
-                        </td>`;
-                    } else if (date > lastDate) {
-                        // 다음 달의 날짜
-                        const nextDate = date - lastDate;
-                        calendarHTML += `<td class="other-month">
-                            <span class="date-number">${nextDate}</span>
-                        </td>`;
-                        date++;
+        function calculateTotal() {
+            let total = 0;
+            let summaryHTML = '';
+            currentSelections = { internet: null, tv: null, phone: null, fixed: null, addons: [], totalPrice: 0, benefit: 0 };
+
+            const getSelected = (name) => document.querySelector(`input[name="${name}"]:checked`)?.value;
+
+            const selectedInternetName = getSelected('internet');
+            const selectedTvName = getSelected('tv');
+            const selectedPhoneName = getSelected('phone');
+            const selectedFixedIpName = getSelected('fixed-ip');
+            const selectedAddons = document.querySelectorAll('input[name="addon"]:checked');
+
+            if (!selectedInternetName) return;
+
+            // Base products
+            const internetPlan = pricingData.internet.find(p => p.name === selectedInternetName);
+            total += internetPlan.price;
+            summaryHTML += `<div class="summary-item"><span class="summary-title">${internetPlan.name}</span><span class="summary-price">+ ${internetPlan.price.toLocaleString()}원</span></div>`;
+            currentSelections.internet = internetPlan.name;
+
+            const tvPlan = pricingData.tv.find(p => p.name === selectedTvName);
+            if (tvPlan) {
+                total += tvPlan.price;
+                summaryHTML += `<div class="summary-item"><span class="summary-title">TV: ${tvPlan.name}</span><span class="summary-price">+ ${tvPlan.price.toLocaleString()}원</span></div>`;
+                currentSelections.tv = tvPlan.name;
+            }
+
+            const phonePlan = pricingData.phone.find(p => p.name === selectedPhoneName);
+            if (phonePlan) {
+                total += phonePlan.price;
+                summaryHTML += `<div class="summary-item"><span class="summary-title">${phonePlan.name}</span><span class="summary-price">+ ${phonePlan.price.toLocaleString()}원</span></div>`;
+                currentSelections.phone = phonePlan.name;
+            }
+
+            // Discount
+            const internetSpeed = internetPlan.name.includes('100mb') ? '100mb' : internetPlan.name.includes('500mb') ? '500mb' : '1GB';
+            const hasTv = !!tvPlan;
+            const hasPhone = !!phonePlan;
+            
+            let discount = 0;
+            if (hasTv || hasPhone) {
+                if ((internetSpeed === '500mb' || internetSpeed === '1GB')) {
+                    discount = 5500;
+                }
+            }
+             if (hasPhone && !hasTv) {
+                 if ((internetSpeed === '500mb' || internetSpeed === '1GB')) {
+                    discount = 2200;
+                }
+            }
+
+            if (discount > 0) {
+                total -= discount;
+                summaryHTML += `<div class="summary-item"><span class="summary-title text-red-600">결합 할인</span><span class="summary-price text-red-600 font-semibold">- ${discount.toLocaleString()}원</span></div>`;
+            }
+
+            // Fixed IP & Addons
+            const fixedIpPlan = pricingData.fixedIP.find(p => p.name === selectedFixedIpName);
+            if (fixedIpPlan) {
+                total += fixedIpPlan.price;
+                summaryHTML += `<div class="summary-item"><span class="summary-title">${fixedIpPlan.name}</span><span class="summary-price">+ ${fixedIpPlan.price.toLocaleString()}원</span></div>`;
+                currentSelections.fixed = fixedIpPlan.name;
+            }
+
+            if (selectedAddons.length > 0) {
+                summaryHTML += `<div class="summary-item pt-4 mt-2 border-t border-dashed"><span class="summary-title font-bold">부가서비스</span><span class="summary-price"></span></div>`;
+                selectedAddons.forEach(addon => {
+                    const price = parseInt(addon.value);
+                    const name = addon.dataset.name;
+                    total += price;
+                    summaryHTML += `<div class="summary-item"><span class="summary-title">${name}</span><span class="summary-price">+ ${price.toLocaleString()}원</span></div>`;
+                    currentSelections.addons.push(name);
+                });
+            }
+            
+            // Benefit
+            let benefitKey = `${internetSpeed}_`;
+            if (hasTv) {
+                benefitKey += 'TV결합';
+            } else {
+                benefitKey += '단독';
+            }
+            const benefit = benefitData.find(b => b.condition === benefitKey)?.benefit || 0;
+            currentSelections.benefit = benefit;
+
+            // Update UI
+            elements.summary.innerHTML = summaryHTML || `<p class="text-center text-gray-500 p-8">서비스를 선택해주세요.</p>`;
+            elements.totalPrice.textContent = `${total.toLocaleString()}원`;
+            elements.benefitAmount.textContent = `${benefit.toLocaleString()}원`;
+            currentSelections.totalPrice = total;
+
+            // Update selected styles
+            document.querySelectorAll('input[type="radio"], input[type="checkbox"]').forEach(input => {
+                const label = input.closest('.option-label');
+                if (label) {
+                    if (input.checked) {
+                        label.classList.add('selected');
                     } else {
-                        // 현재 달의 날짜
-                        const today = new Date();
-                        const isToday = (date === today.getDate() && month === today.getMonth() && year === today.getFullYear());
-                        const todayClass = isToday ? "today" : "";
-                        
-                        calendarHTML += `<td class="${todayClass}" onclick="selectDate(${date})">
-                            <span class="date-number">${date}</span>
-                            ${Math.random() > 0.8 ? '<div class="event-indicator"></div>' : ''}
-                        </td>`;
-                        date++;
+                        label.classList.remove('selected');
                     }
                 }
-
-                calendarHTML += "</tr>";
-
-                // 모든 날짜를 표시했으면 종료
-                if (date > lastDate && i >= 4) break;
+            });
+        }
+        
+        function openHelpModal(key) {
+            const data = helpTexts[key];
+            if (data) {
+                elements.modalTitle.textContent = data.title;
+                elements.modalContent.innerHTML = data.content;
+                elements.helpModal.classList.remove('hidden');
             }
-
-            document.getElementById("calendarBody").innerHTML = calendarHTML;
         }
 
-        function previousMonth() {
-            currentMonth--;
-            if (currentMonth < 0) {
-                currentMonth = 11;
-                currentYear--;
+        function closeHelpModal() { elements.helpModal.classList.add('hidden'); }
+        function openGeminiModal() { 
+            elements.geminiModal.classList.remove('hidden'); 
+            elements.geminiForm.style.display = 'block';
+            elements.geminiResultContainer.classList.add('hidden');
+        }
+        function closeGeminiModal() { elements.geminiModal.classList.add('hidden'); }
+
+        function formatGeminiResponse(text) {
+            return text
+                .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+                .replace(/#### (.*)/g, '<h4 class="text-lg font-bold mt-4 mb-2 text-gray-800">$1</h4>')
+                .replace(/\* (.*)/g, (match, p1) => `<li>${p1.trim()}</li>`)
+                .replace(/(<li>.*<\/li>)/g, '<ul>$1</ul>') // Wrap LIs in ULs
+                .replace(/<\/ul>\n<ul>/g, '') // Merge adjacent ULs
+                .replace(/\n/g, '<br>');
+        }
+
+        async function handleGeminiAnalysis() {
+            const businessType = elements.businessType.value.trim();
+            const employeeCount = elements.employeeCount.value.trim();
+            if (!businessType || !employeeCount) { alert('업종과 직원 수를 모두 입력해주세요.'); return; }
+
+            elements.geminiForm.style.display = 'none';
+            elements.geminiResultContainer.classList.remove('hidden');
+            elements.geminiLoading.style.display = 'block';
+            elements.geminiResult.style.display = 'none';
+
+            const unselectedAddons = pricingData.addOns
+                .map(s => s.name)
+                .filter(name => !currentSelections.addons.includes(name));
+
+            const prompt = `
+                당신은 KT 소상공인 전문 컨설턴트입니다. 친절하고 이해하기 쉬운 말투로 답변해주세요. 아래 정보를 바탕으로 고객에게 맞춤 컨설팅을 제공합니다.
+
+                1.  **고객 정보:**
+                    * **업종:** ${businessType}
+                    * **직원(PC) 수:** ${employeeCount}명
+                2.  **고객이 선택한 상품:**
+                    * **인터넷:** ${currentSelections.internet}
+                    * **TV:** ${currentSelections.tv || '선택 안함'}
+                    * **전화:** ${currentSelections.phone || '선택 안함'}
+                    * **고정IP:** ${currentSelections.fixed || '선택 안함'}
+                    * **선택한 부가서비스:** ${currentSelections.addons.length > 0 ? currentSelections.addons.join(', ') : '선택 안함'}
+                    * **월 예상 요금:** ${currentSelections.totalPrice.toLocaleString()}원
+                    * **예상 사은품:** ${currentSelections.benefit.toLocaleString()}원
+                3.  **고객이 선택하지 않은 부가서비스 목록:** ${unselectedAddons.join(', ')}
+
+                ---
+
+                **[컨설팅 결과]**
+
+                #### 현재 선택하신 요금제 분석
+                * 선택한 인터넷 속도가 ${businessType} 업종과 ${employeeCount}명 규모에 적절한지 평가해주세요. 긍정적으로 평가해주세요.
+                * 선택한 다른 상품들에 대해 간단히 코멘트해주세요.
+
+                #### ✨ 사장님께 추천하는 추가 부가서비스
+                * 위 "고객이 선택하지 않은 부가서비스 목록" 중에서, 고객의 업종(${businessType})에 가장 유용할 것 같은 서비스 1~2개를 추천하고, 왜 유용한지 구체적인 예시를 들어 설명해주세요.
+                * 추천이 어렵다면 "현재 선택하신 구성이 사장님 사업장에 아주 적합해 보입니다!" 라고 언급해주세요.
+
+                #### 최종 코멘트
+                * 사장님의 성공을 응원하는 희망찬 메시지로 마무리해주세요.
+            `;
+
+            try {
+                const apiKey = "AIzaSyBpltrFvnHe7g54ScQW6bo30zXk1OgN-DA"; // This will be handled by the execution environment.
+                const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
+                const payload = { contents: [{ role: "user", parts: [{ text: prompt }] }] };
+                const response = await fetch(apiUrl, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
+                
+                if (!response.ok) {
+                    const errorBody = await response.json();
+                    throw new Error(`API Error: ${response.status} ${response.statusText} - ${errorBody.error.message}`);
+                }
+
+                const result = await response.json();
+                
+                let geminiText = "AI 컨설턴트로부터 응답을 받지 못했습니다. 다시 시도해주세요.";
+                if (result.candidates && result.candidates.length > 0 && result.candidates[0].content && result.candidates[0].content.parts && result.candidates[0].content.parts.length > 0) {
+                    geminiText = result.candidates[0].content.parts[0].text;
+                } else if (result.promptFeedback && result.promptFeedback.blockReason) {
+                     geminiText = `AI 답변 생성이 안전상의 이유로 차단되었습니다. (사유: ${result.promptFeedback.blockReason}).<br>다른 표현으로 다시 시도해주세요.`;
+                }
+
+                elements.geminiResult.innerHTML = formatGeminiResponse(geminiText);
+
+            } catch (error) {
+                console.error("Gemini API Fetch Error:", error);
+                elements.geminiResult.innerHTML = `오류가 발생했습니다: ${error.message}<br>네트워크 연결을 확인하고 다시 시도해주세요.`;
+            } finally {
+                elements.geminiLoading.style.display = 'none';
+                elements.geminiResult.style.display = 'block';
             }
-            generateCalendar(currentMonth, currentYear);
         }
+        
+        // --- Event Listeners ---
+        document.addEventListener('DOMContentLoaded', () => {
+            populateOptions();
+            calculateTotal();
+            
+            document.body.addEventListener('click', function(e) { 
+                if (e.target.classList.contains('help-toggle')) {
+                    const key = e.target.dataset.key;
+                    openHelpModal(key);
+                }
+            });
 
-        function nextMonth() {
-            currentMonth++;
-            if (currentMonth > 11) {
-                currentMonth = 0;
-                currentYear++;
-            }
-            generateCalendar(currentMonth, currentYear);
-        }
-
-        function goToToday() {
-            const today = new Date();
-            currentMonth = today.getMonth();
-            currentYear = today.getFullYear();
-            generateCalendar(currentMonth, currentYear);
-        }
-
-        function selectDate(date) {
-            alert(`${currentYear}년 ${currentMonth + 1}월 ${date}일이 선택되었습니다.`);
-        }
-
-        // 초기 캘린더 생성
-        generateCalendar(currentMonth, currentYear);
+            elements.modalClose.addEventListener('click', closeHelpModal);
+            elements.helpModal.addEventListener('click', (e) => { if (e.target === elements.helpModal) closeHelpModal(); });
+            
+            elements.geminiConsultButton.addEventListener('click', openGeminiModal);
+            elements.geminiModalClose.addEventListener('click', closeGeminiModal);
+            elements.geminiModal.addEventListener('click', (e) => { if (e.target === elements.geminiModal) closeGeminiModal(); });
+            elements.startGeminiAnalysis.addEventListener('click', handleGeminiAnalysis);
+        });
     </script>
 </body>
 </html>
