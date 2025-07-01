@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>KT 통합 요금 계산기 (소호/비즈)</title>
+    <title>KT 으랏차차패키지 요금 계산기</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
     <style>
@@ -34,9 +34,9 @@
             color: #1d4ed8;
         }
         .benefit-amount {
-             font-size: 1.5rem;
-             font-weight: 700;
-             color: #059669;
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #059669;
         }
         [type='radio']:checked, [type='checkbox']:checked {
             background-color: #2563eb;
@@ -80,32 +80,12 @@
         .help-toggle:hover {
             background-color: #4b5563;
         }
-        @keyframes spin {
-            to { transform: rotate(360deg); }
-        }
-        .spinner {
-            display: inline-block;
-            width: 2rem;
-            height: 2rem;
-            border: 4px solid rgba(0, 0, 0, 0.1);
-            border-left-color: #3b82f6;
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-        }
-        .gemini-result h4 {
-            font-weight: 700;
-            font-size: 1.1rem;
+        .promo-box {
+            background-color: #eef2ff;
+            border: 1px solid #c7d2fe;
+            border-radius: 0.75rem;
+            padding: 1rem;
             margin-top: 1rem;
-            margin-bottom: 0.5rem;
-            color: #1e3a8a;
-        }
-         .gemini-result ul {
-            list-style-type: disc;
-            padding-left: 1.5rem;
-            margin-bottom: 1rem;
-        }
-         .gemini-result strong {
-            color: #1d4ed8;
         }
     </style>
 </head>
@@ -114,7 +94,7 @@
     <div class="container mx-auto p-4 md:p-8 max-w-5xl">
         <div class="bg-white p-6 rounded-2xl shadow-lg mb-6">
             <div class="text-center">
-                <h1 class="text-2xl md:text-3xl font-bold text-gray-900">KT 통합 요금 계산기 (소호/비즈)</h1>
+                <h1 class="text-2xl md:text-3xl font-bold text-gray-900">KT 으랏차차패키지 요금 계산기</h1>
                 <p class="text-sm text-gray-500 mt-2">문의/가입: 1588-0114</p>
             </div>
         </div>
@@ -122,34 +102,16 @@
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
             <!-- Left Side: Options -->
             <div class="lg:col-span-2 space-y-6">
-                <!-- Package Selector -->
-                <div class="bg-white p-6 rounded-2xl shadow-lg">
-                    <h2 class="text-xl font-bold mb-4 border-b pb-2">1. 패키지 선택</h2>
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-2" id="package-selector">
-                        <label for="package-soho" class="option-label selected">
-                            <input type="radio" id="package-soho" name="package-type" value="soho" class="hidden" onchange="populateOptions(); calculateTotal();" checked>
-                            <div class="text-center">
-                                <span class="font-bold text-lg">소호 패키지</span>
-                                <span class="block text-sm text-gray-500">소상공인, 매장, 1인 기업</span>
-                            </div>
-                        </label>
-                        <label for="package-biz" class="option-label">
-                            <input type="radio" id="package-biz" name="package-type" value="biz" class="hidden" onchange="populateOptions(); calculateTotal();">
-                            <div class="text-center">
-                                <span class="font-bold text-lg">비즈 성공팩</span>
-                                <span class="block text-sm text-gray-500">중소기업, 다회선, IT인프라</span>
-                            </div>
-                        </label>
-                    </div>
-                </div>
                 
                 <!-- Main Product Options -->
                 <div class="bg-white p-6 rounded-2xl shadow-lg">
-                    <h2 class="text-xl font-bold mb-4 border-b pb-2">2. 기본 상품 선택</h2>
+                    <h2 class="text-xl font-bold mb-4 border-b pb-2">1. 기본 상품 선택</h2>
                     <div class="space-y-4">
                         <div>
                             <label class="font-semibold text-gray-700">인터넷</label>
                             <div class="grid grid-cols-1 sm:grid-cols-3 gap-2 mt-2" id="internet-options"></div>
+                            <!-- WiFi Options section -->
+                            <div id="wifi-options" class="mt-4"></div>
                         </div>
                         <div>
                             <label class="font-semibold text-gray-700">TV (선택)</label>
@@ -164,14 +126,14 @@
 
                 <!-- Fixed IP -->
                 <div class="bg-white p-6 rounded-2xl shadow-lg">
-                     <h2 class="text-xl font-bold mb-4 border-b pb-2">3. 고정IP 추가 (선택)</h2>
+                     <h2 class="text-xl font-bold mb-4 border-b pb-2">2. 고정IP 추가 (선택)</h2>
                     <p class="text-sm text-gray-500 mb-4">자체 서버 운영, 외부 CCTV 접속 등 특별한 목적이 있을 때 선택합니다.</p>
                     <div class="grid grid-cols-1 sm:grid-cols-3 gap-2" id="fixed-ip-selector"></div>
                 </div>
 
                 <!-- Add-on Services -->
                 <div class="bg-white p-6 rounded-2xl shadow-lg">
-                    <h2 id="addon-title" class="text-xl font-bold mb-4 border-b pb-2">4. 솔루션 선택 (선택)</h2>
+                    <h2 id="addon-title" class="text-xl font-bold mb-4 border-b pb-2">3. 소상공인 솔루션 선택 (선택)</h2>
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-4" id="addon-services"></div>
                 </div>
             </div>
@@ -189,11 +151,6 @@
                         <p class="text-green-800 font-semibold">예상 사은품 혜택</p>
                         <p id="benefit-amount" class="benefit-amount mt-1 text-base">0원</p>
                     </div>
-                    <div class="mt-4">
-                        <button id="gemini-consult-button" class="w-full bg-gradient-to-r from-blue-500 to-indigo-600 text-white font-bold py-3 px-4 rounded-lg hover:from-blue-600 hover:to-indigo-700 transition-all shadow-md">
-                            ✨ AI 컨설팅 받기
-                        </button>
-                    </div>
                 </div>
             </div>
         </div>
@@ -210,45 +167,13 @@
         </div>
     </div>
 
-    <!-- Gemini Modal -->
-    <div id="gemini-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-[60] hidden">
-        <div class="bg-white rounded-lg shadow-xl max-w-lg w-full flex flex-col max-h-[90vh]">
-            <div class="p-5 border-b flex justify-between items-center flex-shrink-0">
-                <h3 class="text-xl font-bold text-gray-800">✨ AI 맞춤 컨설팅</h3>
-                <button id="gemini-modal-close" class="text-2xl text-gray-500 hover:text-gray-900">&times;</button>
-            </div>
-            <div class="p-5 overflow-y-auto">
-                <div id="gemini-form">
-                    <p class="mb-4 text-gray-600">사장님의 사업장에 딱 맞는 요금제를 추천해 드릴게요!</p>
-                    <div class="mb-4">
-                        <label for="business-type" class="block font-semibold text-gray-700 mb-1">업종</label>
-                        <input type="text" id="business-type" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="예: 카페, 식당, 사무실, IT기업">
-                    </div>
-                    <div class="mb-6">
-                        <label for="employee-count" class="block font-semibold text-gray-700 mb-1">주로 사용하는 PC(또는 직원) 수</label>
-                        <input type="number" id="employee-count" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="예: 5">
-                    </div>
-                    <button id="start-gemini-analysis" class="w-full bg-blue-600 text-white font-bold py-3 px-4 rounded-lg hover:bg-blue-700 transition-all">분석 시작하기</button>
-                </div>
-                <div id="gemini-result-container" class="hidden">
-                    <div id="gemini-loading" class="text-center py-8">
-                        <div class="spinner mx-auto"></div>
-                        <p class="mt-4 text-gray-600">AI 컨설턴트가 분석 중입니다...</p>
-                    </div>
-                    <div id="gemini-result" class="gemini-result leading-relaxed text-gray-700"></div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-
     <script>
-        // --- DATA (Unified for SOHO & BIZ with new features) ---
+        // --- DATA ---
         const pricingData = {
           "internet": [
-            { "name": "오피스넷 100mb", "price": 30800 },
-            { "name": "오피스넷 500mb", "price": 44000 },
-            { "name": "오피스넷 1GB", "price": 49500 }
+            { "name": "오피스넷 세이브 (100M)", "price": 30800 },
+            { "name": "오피스넷 베이직 (500M)", "price": 44000 },
+            { "name": "오피스넷 에센스 (1G)", "price": 49500 }
           ],
           "tv": [
             { "name": "Genie TV 슬림", "price": 11880 },
@@ -265,42 +190,31 @@
              { "name": "고정IP (1G)", "price": 27500 }
           ],
           "addOns": [
-            // Shared Add-ons
-            { "name": "오피스넷 공유기", "price": 1100, "description": "Giga-WiFi 공유기 임대", "package": "all", "helpKey": "addon-wifi" },
-            // SOHO Add-ons
-            { "name": "카드결제기 (VAN)", "price": 0, "description": "인터넷 요금 4,400원 추가 할인", "package": "soho", "helpKey": "addon-van" },
-            { "name": "하이오더 (테이블오더)", "price": 22000, "description": "인터넷 요금 5,500원 추가 할인", "package": "soho", "helpKey": "addon-hiorder" },
-            { "name": "GiGAeyes (CCTV)", "price": 63250, "description": "4대 기준, 인터넷 요금 10% 추가 할인", "package": "soho", "helpKey": "addon-gigaeyes" },
-            // BIZ Add-ons
-            { "name": "매니지드 서버", "price": 145200, "discountedPrice": 137940, "description": "결합 시 5% 할인 (DELL R250 기준)", "package": "biz", "helpKey": "addon-server" },
-            { "name": "세무로", "price": 4400, "discountedPrice": 3960, "description": "결합 시 10% 할인", "package": "biz", "helpKey": "addon-semuro" },
-            { "name": "관리형 무선랜", "price": 17490, "discountedPrice": 16600, "description": "결합 시 약 5% 할인 (Ktki-200 기준)", "package": "biz", "helpKey": "addon-managed-wifi" }
+            { "name": "카드결제기 (VAN)", "price": 0, "description": "인터넷 요금 4,400원 추가 할인", "helpKey": "addon-van" },
+            { "name": "하이오더 (테이블오더)", "price": 22000, "description": "인터넷 요금 5,500원 추가 할인", "helpKey": "addon-hiorder" },
+            { "name": "GiGAeyes (CCTV)", "price": 63250, "description": "4대 기준, 인터넷 요금 10% 추가 할인", "helpKey": "addon-gigaeyes" },
           ]
         };
 
         const benefitData = [
-             { "condition": "100mb_단독", "benefit": 90000 },
-             { "condition": "500mb_단독", "benefit": 140000 },
-             { "condition": "1GB_단독", "benefit": 140000 },
-             { "condition": "100mb_TV결합", "benefit": 370000 },
-             { "condition": "500mb_TV결합", "benefit": 450000 },
-             { "condition": "1GB_TV결합", "benefit": 450000 }
+             { "condition": "100M_단독", "benefit": 90000 },
+             { "condition": "500M_단독", "benefit": 140000 },
+             { "condition": "1G_단독", "benefit": 140000 },
+             { "condition": "100M_TV결합", "benefit": 370000 },
+             { "condition": "500M_TV결합", "benefit": 450000 },
+             { "condition": "1G_TV결합", "benefit": 450000 }
         ];
         
         const helpTexts = { 
-            'addon-wifi': { title: '오피스넷 공유기', content: `<p>사무실 및 매장 환경에 최적화된 Giga-WiFi 공유기를 임대하여 안정적인 무선 인터넷 환경을 제공합니다.</p>` },
             'addon-van': { title: '카드결제기 (VAN)', content: `<p class="mb-2">제휴 카드결제 단말기(VAN)를 인터넷과 함께 사용할 경우, 인터넷 요금에서 직접 <strong>4,400원</strong>이 차감 할인됩니다.</p><p><strong>조건:</strong></p><ul class="list-disc list-inside"><li>월 1건 이상 카드 결제 실적이 필요합니다.</li><li>월 100건 이상 사용 시 단말기 및 관리비가 면제될 수 있습니다. (별도 조건 확인 필요)</li><li>할인은 특정 가입 시점 이후 36개월로 제한될 수 있습니다.</li></ul>` },
             'addon-hiorder': { title: '하이오더 (테이블오더)', content: `<p class="mb-2">'하이오더'와 같은 테이블 오더 솔루션을 인터넷과 함께 '으랏차차 패키지'로 묶을 경우, 인터넷 요금에서 <strong>5,500원</strong>이 할인됩니다.</p><p class="mb-3">또한, 하이오더 자체 요금도 할인된 가격(월 22,000원)으로 제공되어 이중 혜택을 받을 수 있습니다.</p>` },
-            'addon-gigaeyes': { title: 'GiGAeyes (CCTV)', content: '<p class="mb-2">고화질 카메라 4대를 기본으로 제공하는 지능형 영상보안 솔루션입니다.</p><p>인터넷과 결합 시 인터넷 요금의 <strong>10%</strong>가 할인되는 혜택이 적용됩니다.</p>' },
-            'addon-server': { title: '매니지드 서버', content: `<p class="mb-2">물리적 서버(예: DELL R250)를 KT 데이터센터에 두고 웹서버, DB서버 등으로 사용할 수 있도록 임대 및 관리해주는 서비스입니다.</p><p class="mb-3">IT 인프라를 아웃소싱하여 안정성과 보안을 확보하고 싶은 기업에 적합합니다. 비즈 성공팩 결합 시 <strong>약 5% 할인</strong>된 요금으로 이용 가능합니다.</p>` },
-            'addon-semuro': { title: '세무로', content: `<p class="mb-2">복잡한 세무/회계 업무를 간편하게 처리할 수 있도록 돕는 솔루션입니다. 비즈 성공팩 결합 시 <strong>10% 할인</strong>된 월 3,960원으로 이용할 수 있습니다.</p>` },
-            'addon-managed-wifi': { title: '관리형 무선랜', content: `<p class="mb-2">사무실, 매장 등 넓은 공간에 끊김 없고 안정적인 Wi-Fi 환경을 구축하고, 전문가가 원격으로 네트워크 상태를 모니터링 및 관리해주는 서비스입니다. 비즈 성공팩 결합 시 <strong>약 5% 할인</strong>이 적용됩니다.</p>` }
+            'addon-gigaeyes': { title: 'GiGAeyes (CCTV)', content: '<p class="mb-2">고화질 카메라 4대를 기본으로 제공하는 지능형 영상보안 솔루션입니다.</p><p>인터넷과 결합 시 인터넷 요금의 <strong>10%</strong>가 할인되는 혜택이 적용됩니다.</p>' }
         };
 
         // --- Elements ---
         const elements = {
-            packageSelector: document.getElementById('package-selector'),
             internetOptions: document.getElementById('internet-options'),
+            wifiOptions: document.getElementById('wifi-options'),
             tvOptions: document.getElementById('tv-options'),
             phoneOptions: document.getElementById('phone-options'),
             fixedIpSelector: document.getElementById('fixed-ip-selector'),
@@ -313,16 +227,6 @@
             modalTitle: document.getElementById('modal-title'),
             modalContent: document.getElementById('modal-content'),
             modalClose: document.getElementById('modal-close'),
-            geminiModal: document.getElementById('gemini-modal'),
-            geminiForm: document.getElementById('gemini-form'),
-            geminiResultContainer: document.getElementById('gemini-result-container'),
-            geminiLoading: document.getElementById('gemini-loading'),
-            geminiResult: document.getElementById('gemini-result'),
-            geminiConsultButton: document.getElementById('gemini-consult-button'),
-            geminiModalClose: document.getElementById('gemini-modal-close'),
-            startGeminiAnalysis: document.getElementById('start-gemini-analysis'),
-            businessType: document.getElementById('business-type'),
-            employeeCount: document.getElementById('employee-count'),
         };
 
         let currentSelections = {};
@@ -355,28 +259,26 @@
         }
 
         function populateOptions() {
-            const selectedPackage = document.querySelector('input[name="package-type"]:checked').value;
-
-            // Populate basic options (always visible)
+            // Populate basic options
             elements.internetOptions.innerHTML = pricingData.internet.map((s, i) => createOption('radio', 'internet', s.name, s.name, s.price, i === 0)).join('');
             elements.tvOptions.innerHTML = createOption('radio', 'tv', 'none', '선택 안함', 0, true) + pricingData.tv.map(s => createOption('radio', 'tv', s.name, s.name, s.price)).join('');
             elements.phoneOptions.innerHTML = createOption('radio', 'phone', 'none', '선택 안함', 0, true) + pricingData.phone.map(s => createOption('radio', 'phone', s.name, s.name, s.price)).join('');
             elements.fixedIpSelector.innerHTML = createOption('radio', 'fixed-ip', 'none', '선택 안함', 0, true) + pricingData.fixedIP.map(s => createOption('radio', 'fixed-ip', s.name, s.name, s.price)).join('');
             
-            // Populate add-ons based on selected package
-            const relevantAddons = pricingData.addOns.filter(addon => addon.package === 'all' || addon.package === selectedPackage);
-            elements.addonServices.innerHTML = relevantAddons.map(s => createCheckbox('addon', s.name, s.name, s.price, s.description, s.helpKey)).join('');
-            elements.addonTitle.textContent = selectedPackage === 'soho' ? '4. 소상공인 솔루션 선택 (선택)' : '4. 기업용 IT 솔루션 선택 (선택)';
+            // Populate add-ons
+            elements.addonServices.innerHTML = pricingData.addOns.map(s => createCheckbox('addon', s.name, s.name, s.price, s.description, s.helpKey)).join('');
         }
 
         function calculateTotal() {
+            // Preserve state of 100M router option before re-rendering
+            const existingRouterChoice = document.querySelector('input[name="router-100m"]:checked')?.value || 'none';
+
             let total = 0;
             let summaryHTML = '';
             currentSelections = { internet: null, tv: null, phone: null, fixedIP: null, addons: [], totalPrice: 0, benefit: 0 };
 
             const getSelected = (name) => document.querySelector(`input[name="${name}"]:checked`)?.value;
 
-            const selectedPackage = getSelected('package-type');
             const selectedInternetName = getSelected('internet');
             const selectedTvName = getSelected('tv');
             const selectedPhoneName = getSelected('phone');
@@ -390,6 +292,49 @@
             total += internetPlan.price;
             summaryHTML += `<div class="summary-item"><span class="summary-title">${internetPlan.name}</span><span class="summary-price">+ ${internetPlan.price.toLocaleString()}원</span></div>`;
             currentSelections.internet = internetPlan.name;
+            
+            // --- WiFi Logic ---
+            const wifiOptionsContainer = elements.wifiOptions;
+            wifiOptionsContainer.innerHTML = ''; // Clear previous options
+
+            if (internetPlan.name.includes('100M')) {
+                const isRentChecked = existingRouterChoice === 'rent';
+                const isNoneChecked = !isRentChecked;
+                wifiOptionsContainer.innerHTML = `
+                    <div>
+                        <label class="font-semibold text-gray-700">공유기</label>
+                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-2 mt-2">
+                            ${createOption('radio', 'router-100m', 'none', '선택 안함', 0, isNoneChecked)}
+                            ${createOption('radio', 'router-100m', 'rent', '일반 공유기 임대', 1100, isRentChecked)}
+                        </div>
+                    </div>`;
+                
+                const selectedRouter = document.querySelector('input[name="router-100m"]:checked').value;
+                if (selectedRouter === 'rent') {
+                    const routerFee = 1100;
+                    total += routerFee;
+                    summaryHTML += `<div class="summary-item"><span class="summary-title">일반 공유기 임대</span><span class="summary-price">+ ${routerFee.toLocaleString()}원</span></div>`;
+                }
+            } else if (internetPlan.name.includes('500M')) {
+                wifiOptionsContainer.innerHTML = `
+                    <div class="promo-box">
+                        <p class="font-semibold text-blue-800">🎁 무료 와이파이: GiGA WiFi home ax</p>
+                        <p class="text-sm text-blue-700 mt-1">
+                            <span class="font-bold">ㄴ 프로모션:</span> '베이직(500Mbps)' 요금제 신규 가입 시 무료 제공
+                        </p>
+                        <a href="https://product.kt.com/wDic/productDetail.do?ItemCode=1401" target="_blank" class="text-xs text-blue-600 hover:underline">제품 상세 정보 &rarr;</a>
+                    </div>`;
+            } else if (internetPlan.name.includes('1G')) {
+                wifiOptionsContainer.innerHTML = `
+                     <div class="promo-box">
+                        <p class="font-semibold text-blue-800">🎁 무료 와이파이: KT WiFi 7D</p>
+                        <p class="text-sm text-blue-700 mt-1">
+                            <span class="font-bold">ㄴ 프로모션:</span> '에센스(1Gbps)' 이상 요금제 신규 가입 시 무료 제공 (25년 8/31까지, 선착순 5만명)
+                        </p>
+                        <a href="https://product.kt.com/wDic/productDetail.do?ItemCode=1633" target="_blank" class="text-xs text-blue-600 hover:underline">제품 상세 정보 &rarr;</a>
+                    </div>`;
+            }
+
 
             const tvPlan = pricingData.tv.find(p => p.name === selectedTvName);
             if (tvPlan) {
@@ -413,8 +358,7 @@
             }
             
             if (selectedAddons.length > 0) {
-                const addonTitle = selectedPackage === 'soho' ? '소상공인 솔루션' : '기업용 IT 솔루션';
-                summaryHTML += `<div class="summary-item pt-4 mt-2 border-t border-dashed"><span class="summary-title font-bold">${addonTitle}</span><span class="summary-price"></span></div>`;
+                summaryHTML += `<div class="summary-item pt-4 mt-2 border-t border-dashed"><span class="summary-title font-bold">소상공인 솔루션</span><span class="summary-price"></span></div>`;
                 selectedAddons.forEach(addonInput => {
                     const addonName = addonInput.value;
                     const addonPlan = pricingData.addOns.find(a => a.name === addonName);
@@ -429,58 +373,39 @@
             // --- Discounts ---
             let totalDiscount = 0;
             let discountHTML = '';
-            const internetSpeed = internetPlan.name.includes('100mb') ? '100mb' : internetPlan.name.includes('500mb') ? '500mb' : '1GB';
+            const internetSpeed = internetPlan.name.includes('100M') ? '100M' : internetPlan.name.includes('500M') ? '500M' : '1G';
 
-            if (selectedPackage === 'soho') {
-                // SOHO Discount Logic
-                let internetDiscount = 0;
-                let reason = '';
-                if (tvPlan && (internetSpeed === '500mb' || internetSpeed === '1GB')) {
-                    internetDiscount = 5500;
-                    reason = '인터넷+TV 결합';
-                } else if (phonePlan && (internetSpeed === '500mb' || internetSpeed === '1GB')) {
-                    internetDiscount = 2200;
-                    reason = '인터넷+전화 결합';
-                }
-                if (internetDiscount > 0) {
-                    totalDiscount += internetDiscount;
-                    discountHTML += `<div class="summary-item"><span class="summary-title text-red-600">${reason} 할인</span><span class="summary-price text-red-600 font-semibold">- ${internetDiscount.toLocaleString()}원</span></div>`;
-                }
-
-                // Additional SOHO solution discounts
-                if (currentSelections.addons.includes('카드결제기 (VAN)')) {
-                    const vanDiscount = 4400;
-                    totalDiscount += vanDiscount;
-                    discountHTML += `<div class="summary-item"><span class="summary-title text-red-600">카드결제기 연동 할인</span><span class="summary-price text-red-600 font-semibold">- ${vanDiscount.toLocaleString()}원</span></div>`;
-                }
-                if (currentSelections.addons.includes('하이오더 (테이블오더)')) {
-                    const hiOrderDiscount = 5500;
-                    totalDiscount += hiOrderDiscount;
-                    discountHTML += `<div class="summary-item"><span class="summary-title text-red-600">하이오더 결합 할인</span><span class="summary-price text-red-600 font-semibold">- ${hiOrderDiscount.toLocaleString()}원</span></div>`;
-                }
-                if (currentSelections.addons.includes('GiGAeyes (CCTV)')) {
-                    const gigaeyesDiscount = Math.round(internetPlan.price * 0.1);
-                    totalDiscount += gigaeyesDiscount;
-                    discountHTML += `<div class="summary-item"><span class="summary-title text-red-600">GiGAeyes 결합 할인</span><span class="summary-price text-red-600 font-semibold">- ${gigaeyesDiscount.toLocaleString()}원</span></div>`;
-                }
-
-            } else { // BIZ Discount Logic
-                const isCombined = tvPlan || phonePlan || fixedIpPlan || selectedAddons.length > 0;
-                if (isCombined) {
-                    const internetDiscount = Math.round(internetPlan.price * 0.1);
-                    totalDiscount += internetDiscount;
-                    discountHTML += `<div class="summary-item"><span class="summary-title text-red-600">인터넷 결합 할인 (10%)</span><span class="summary-price text-red-600 font-semibold">- ${internetDiscount.toLocaleString()}원</span></div>`;
-                }
-
-                selectedAddons.forEach(addonInput => {
-                    const addonPlan = pricingData.addOns.find(a => a.name === addonInput.value);
-                    if (addonPlan && addonPlan.discountedPrice) {
-                        const itemDiscount = addonPlan.price - addonPlan.discountedPrice;
-                        totalDiscount += itemDiscount;
-                        discountHTML += `<div class="summary-item"><span class="summary-title text-red-600">${addonPlan.name} 할인</span><span class="summary-price text-red-600 font-semibold">- ${itemDiscount.toLocaleString()}원</span></div>`;
-                    }
-                });
+            let internetDiscount = 0;
+            let reason = '';
+            if (tvPlan && (internetSpeed === '500M' || internetSpeed === '1G')) {
+                internetDiscount = 5500;
+                reason = '인터넷+TV 결합';
+            } else if (phonePlan && (internetSpeed === '500M' || internetSpeed === '1G')) {
+                internetDiscount = 2200;
+                reason = '인터넷+전화 결합';
             }
+            if (internetDiscount > 0) {
+                totalDiscount += internetDiscount;
+                discountHTML += `<div class="summary-item"><span class="summary-title text-red-600">${reason} 할인</span><span class="summary-price text-red-600 font-semibold">- ${internetDiscount.toLocaleString()}원</span></div>`;
+            }
+
+            // Additional SOHO solution discounts
+            if (currentSelections.addons.includes('카드결제기 (VAN)')) {
+                const vanDiscount = 4400;
+                totalDiscount += vanDiscount;
+                discountHTML += `<div class="summary-item"><span class="summary-title text-red-600">카드결제기 연동 할인</span><span class="summary-price text-red-600 font-semibold">- ${vanDiscount.toLocaleString()}원</span></div>`;
+            }
+            if (currentSelections.addons.includes('하이오더 (테이블오더)')) {
+                const hiOrderDiscount = 5500;
+                totalDiscount += hiOrderDiscount;
+                discountHTML += `<div class="summary-item"><span class="summary-title text-red-600">하이오더 결합 할인</span><span class="summary-price text-red-600 font-semibold">- ${hiOrderDiscount.toLocaleString()}원</span></div>`;
+            }
+            if (currentSelections.addons.includes('GiGAeyes (CCTV)')) {
+                const gigaeyesDiscount = Math.round(internetPlan.price * 0.1);
+                totalDiscount += gigaeyesDiscount;
+                discountHTML += `<div class="summary-item"><span class="summary-title text-red-600">GiGAeyes 결합 할인</span><span class="summary-price text-red-600 font-semibold">- ${gigaeyesDiscount.toLocaleString()}원</span></div>`;
+            }
+
 
             if (totalDiscount > 0) {
                 summaryHTML += `<div class="summary-item pt-4 mt-2 border-t border-dashed"><span class="summary-title font-bold text-red-600">결합 할인 내역</span><span class="summary-price"></span></div>` + discountHTML;
@@ -518,102 +443,6 @@
         }
 
         function closeHelpModal() { elements.helpModal.classList.add('hidden'); }
-        function openGeminiModal() { 
-            elements.geminiModal.classList.remove('hidden'); 
-            elements.geminiForm.style.display = 'block';
-            elements.geminiResultContainer.classList.add('hidden');
-        }
-        function closeGeminiModal() { elements.geminiModal.classList.add('hidden'); }
-
-        function formatGeminiResponse(text) {
-            return text
-                .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
-                .replace(/#### (.*)/g, '<h4 class="text-lg font-bold mt-4 mb-2 text-gray-800">$1</h4>')
-                .replace(/\* (.*)/g, (match, p1) => `<li>${p1.trim()}</li>`)
-                .replace(/(<li>.*<\/li>)/gs, '<ul>$1</ul>')
-                .replace(/<\/ul>\s*<ul>/g, '')
-                .replace(/\n/g, '<br>');
-        }
-
-        async function handleGeminiAnalysis() {
-            const businessType = elements.businessType.value.trim();
-            const employeeCount = elements.employeeCount.value.trim();
-            if (!businessType || !employeeCount) { alert('업종과 직원 수를 모두 입력해주세요.'); return; }
-
-            elements.geminiForm.style.display = 'none';
-            elements.geminiResultContainer.classList.remove('hidden');
-            elements.geminiLoading.style.display = 'block';
-            elements.geminiResult.style.display = 'none';
-            
-            const selectedPackage = document.querySelector('input[name="package-type"]:checked').value;
-            const packageKor = selectedPackage === 'soho' ? '소호 패키지' : '비즈 성공팩';
-
-            const unselectedAddons = pricingData.addOns
-                .filter(addon => (addon.package === 'all' || addon.package === selectedPackage) && !currentSelections.addons.includes(addon.name))
-                .map(s => s.name);
-
-            const prompt = `
-                당신은 KT 기업/소상공인 전문 컨설턴트입니다. 친절하고 이해하기 쉬운 말투로 답변해주세요. 아래 정보를 바탕으로 고객에게 맞춤 컨설팅을 제공합니다.
-
-                1.  **고객 정보:**
-                    * **업종:** ${businessType}
-                    * **직원(PC) 수:** ${employeeCount}명
-                2.  **고객이 선택한 '${packageKor}' 상품:**
-                    * **인터넷:** ${currentSelections.internet}
-                    * **TV:** ${currentSelections.tv || '선택 안함'}
-                    * **전화:** ${currentSelections.phone || '선택 안함'}
-                    * **고정IP:** ${currentSelections.fixedIP || '선택 안함'}
-                    * **선택한 솔루션:** ${currentSelections.addons.length > 0 ? currentSelections.addons.join(', ') : '선택 안함'}
-                    * **월 예상 요금:** ${currentSelections.totalPrice.toLocaleString()}원
-                    * **예상 사은품:** ${currentSelections.benefit.toLocaleString()}원
-                3.  **고객이 선택하지 않은 솔루션 목록:** ${unselectedAddons.join(', ')}
-
-                ---
-
-                **[컨설팅 결과]**
-
-                #### 현재 선택하신 요금제 분석
-                * 선택한 인터넷 속도가 ${businessType} 업종과 ${employeeCount}명 규모에 적절한지 평가해주세요. 긍정적으로 평가해주세요.
-                * 선택한 다른 상품들에 대해 간단히 코멘트해주세요.
-
-                #### ✨ 대표님께 추천하는 추가 솔루션
-                * 위 "고객이 선택하지 않은 솔루션 목록" 중에서, 고객의 업종(${businessType})에 가장 유용할 것 같은 서비스 1~2개를 추천하고, 왜 유용한지 구체적인 예시를 들어 설명해주세요.
-                * 추천이 어렵다면 "현재 선택하신 구성이 대표님 사업장에 아주 적합해 보입니다!" 라고 언급해주세요.
-
-                #### 최종 코멘트
-                * 대표님의 사업 번창을 응원하는 희망찬 메시지로 마무리해주세요.
-            `;
-
-            try {
-                const apiKey = ""; // API 키는 실행 환경에서 제공됩니다.
-                const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
-                const payload = { contents: [{ role: "user", parts: [{ text: prompt }] }] };
-                const response = await fetch(apiUrl, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
-                
-                if (!response.ok) {
-                    const errorBody = await response.json();
-                    throw new Error(`API Error: ${response.status} ${response.statusText} - ${errorBody.error.message}`);
-                }
-
-                const result = await response.json();
-                
-                let geminiText = "AI 컨설턴트로부터 응답을 받지 못했습니다. 다시 시도해주세요.";
-                if (result.candidates && result.candidates.length > 0 && result.candidates[0].content && result.candidates[0].content.parts && result.candidates[0].content.parts.length > 0) {
-                    geminiText = result.candidates[0].content.parts[0].text;
-                } else if (result.promptFeedback && result.promptFeedback.blockReason) {
-                     geminiText = `AI 답변 생성이 안전상의 이유로 차단되었습니다. (사유: ${result.promptFeedback.blockReason}).<br>다른 표현으로 다시 시도해주세요.`;
-                }
-
-                elements.geminiResult.innerHTML = formatGeminiResponse(geminiText);
-
-            } catch (error) {
-                console.error("Gemini API Fetch Error:", error);
-                elements.geminiResult.innerHTML = `오류가 발생했습니다: ${error.message}<br>네트워크 연결을 확인하고 다시 시도해주세요.`;
-            } finally {
-                elements.geminiLoading.style.display = 'none';
-                elements.geminiResult.style.display = 'block';
-            }
-        }
         
         // --- Event Listeners ---
         document.addEventListener('DOMContentLoaded', () => {
@@ -629,11 +458,6 @@
 
             elements.modalClose.addEventListener('click', closeHelpModal);
             elements.helpModal.addEventListener('click', (e) => { if (e.target === elements.helpModal) closeHelpModal(); });
-            
-            elements.geminiConsultButton.addEventListener('click', openGeminiModal);
-            elements.geminiModalClose.addEventListener('click', closeGeminiModal);
-            elements.geminiModal.addEventListener('click', (e) => { if (e.target === elements.geminiModal) closeGeminiModal(); });
-            elements.startGeminiAnalysis.addEventListener('click', handleGeminiAnalysis);
         });
     </script>
 </body>
