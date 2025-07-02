@@ -134,7 +134,24 @@
                 <!-- Add-on Services -->
                 <div class="bg-white p-6 rounded-2xl shadow-lg">
                     <h2 id="addon-title" class="text-xl font-bold mb-4 border-b pb-2">3. 소상공인 솔루션 선택 (선택)</h2>
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4" id="addon-services"></div>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4" id="addon-services">
+                        <!-- Checkbox addons will be populated here by JS -->
+                    </div>
+                     <!-- New CCTV Section -->
+                    <div class="mt-4 p-4 border border-gray-200 rounded-xl relative">
+                         <span class="help-toggle" data-key="addon-gigaeyes" title="상세정보">?</span>
+                         <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center">
+                            <div>
+                                <span class="font-medium text-gray-800">GiGAeyes 지능형 CCTV</span>
+                                <p class="text-xs text-gray-500 mt-1">1대 13,200원 / 2대 24,200원 / 3대 35,200원 / 4대 46,200원</p>
+                            </div>
+                            <div class="flex items-center space-x-2 mt-3 sm:mt-0">
+                                <label for="cctv-quantity" class="text-sm font-medium">설치 대수:</label>
+                                <input type="number" id="cctv-quantity" name="cctv-quantity" min="0" value="0" class="w-20 text-center border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500" onchange="calculateTotal()">
+                            </div>
+                        </div>
+                        <p id="cctv-price-info" class="text-right text-sm font-semibold text-gray-700 mt-2"></p>
+                    </div>
                 </div>
             </div>
 
@@ -192,7 +209,6 @@
           "addOns": [
             { "name": "카드결제기 (VAN)", "price": 0, "description": "인터넷 요금 4,400원 추가 할인", "helpKey": "addon-van" },
             { "name": "하이오더 (테이블오더)", "price": 22000, "description": "인터넷 요금 5,500원 추가 할인", "helpKey": "addon-hiorder" },
-            { "name": "GiGAeyes (CCTV)", "price": 63250, "description": "4대 기준, 인터넷 요금 10% 추가 할인", "helpKey": "addon-gigaeyes" },
           ]
         };
 
@@ -208,7 +224,7 @@
         const helpTexts = { 
             'addon-van': { title: '카드결제기 (VAN)', content: `<p class="mb-2">제휴 카드결제 단말기(VAN)를 인터넷과 함께 사용할 경우, 인터넷 요금에서 직접 <strong>4,400원</strong>이 차감 할인됩니다.</p><p><strong>조건:</strong></p><ul class="list-disc list-inside"><li>월 1건 이상 카드 결제 실적이 필요합니다.</li><li>월 100건 이상 사용 시 단말기 및 관리비가 면제될 수 있습니다. (별도 조건 확인 필요)</li><li>할인은 특정 가입 시점 이후 36개월로 제한될 수 있습니다.</li></ul>` },
             'addon-hiorder': { title: '하이오더 (테이블오더)', content: `<p class="mb-2">'하이오더'와 같은 테이블 오더 솔루션을 인터넷과 함께 '으랏차차 패키지'로 묶을 경우, 인터넷 요금에서 <strong>5,500원</strong>이 할인됩니다.</p><p class="mb-3">또한, 하이오더 자체 요금도 할인된 가격(월 22,000원)으로 제공되어 이중 혜택을 받을 수 있습니다.</p>` },
-            'addon-gigaeyes': { title: 'GiGAeyes (CCTV)', content: '<p class="mb-2">고화질 카메라 4대를 기본으로 제공하는 지능형 영상보안 솔루션입니다.</p><p>인터넷과 결합 시 인터넷 요금의 <strong>10%</strong>가 할인되는 혜택이 적용됩니다.</p>' }
+            'addon-gigaeyes': { title: 'GiGAeyes (CCTV)', content: '<p class="mb-2">고화질 카메라를 기본으로 제공하는 지능형 영상보안 솔루션입니다. 영상을 매장 내가 아닌 원격 클라우드 서버에 안전하게 저장하여 화재나 도난 시에도 영상 유실 위험이 없습니다.</p><p>피플카운트, 히트맵과 같은 지능형 영상 분석 기능으로 마케팅에 활용할 수 있으며, KT텔레캅 전문 출동 서비스 및 보상 보험 연계도 가능합니다.</p>' }
         };
 
         // --- Elements ---
@@ -227,6 +243,8 @@
             modalTitle: document.getElementById('modal-title'),
             modalContent: document.getElementById('modal-content'),
             modalClose: document.getElementById('modal-close'),
+            cctvQuantity: document.getElementById('cctv-quantity'),
+            cctvPriceInfo: document.getElementById('cctv-price-info'),
         };
 
         let currentSelections = {};
@@ -275,7 +293,7 @@
 
             let total = 0;
             let summaryHTML = '';
-            currentSelections = { internet: null, tv: null, phone: null, fixedIP: null, addons: [], totalPrice: 0, benefit: 0 };
+            currentSelections = { internet: null, tv: null, phone: null, fixedIP: null, addons: [], cctv: 0, totalPrice: 0, benefit: 0 };
 
             const getSelected = (name) => document.querySelector(`input[name="${name}"]:checked`)?.value;
 
@@ -284,6 +302,7 @@
             const selectedPhoneName = getSelected('phone');
             const selectedFixedIpName = getSelected('fixed-ip');
             const selectedAddons = Array.from(document.querySelectorAll('input[name="addon"]:checked'));
+            const cctvQuantity = parseInt(elements.cctvQuantity.value) || 0;
 
             if (!selectedInternetName) return;
 
@@ -357,18 +376,43 @@
                 currentSelections.fixedIP = fixedIpPlan.name;
             }
             
-            if (selectedAddons.length > 0) {
-                summaryHTML += `<div class="summary-item pt-4 mt-2 border-t border-dashed"><span class="summary-title font-bold">소상공인 솔루션</span><span class="summary-price"></span></div>`;
-                selectedAddons.forEach(addonInput => {
-                    const addonName = addonInput.value;
-                    const addonPlan = pricingData.addOns.find(a => a.name === addonName);
-                    if (addonPlan) {
-                        total += addonPlan.price;
-                        summaryHTML += `<div class="summary-item"><span class="summary-title">${addonPlan.name}</span><span class="summary-price">+ ${addonPlan.price.toLocaleString()}원</span></div>`;
-                        currentSelections.addons.push(addonName);
-                    }
-                });
+            // --- Addon Logic ---
+            if (selectedAddons.length > 0 || cctvQuantity > 0) {
+                 summaryHTML += `<div class="summary-item pt-4 mt-2 border-t border-dashed"><span class="summary-title font-bold">소상공인 솔루션</span><span class="summary-price"></span></div>`;
             }
+
+            selectedAddons.forEach(addonInput => {
+                const addonName = addonInput.value;
+                const addonPlan = pricingData.addOns.find(a => a.name === addonName);
+                if (addonPlan) {
+                    total += addonPlan.price;
+                    summaryHTML += `<div class="summary-item"><span class="summary-title">${addonPlan.name}</span><span class="summary-price">+ ${addonPlan.price.toLocaleString()}원</span></div>`;
+                    currentSelections.addons.push(addonName);
+                }
+            });
+
+            // --- CCTV Logic ---
+            if (cctvQuantity > 0) {
+                let cctvTotal = 0;
+                if (cctvQuantity === 1) {
+                    cctvTotal = 13200;
+                } else if (cctvQuantity === 2) {
+                    cctvTotal = 24200;
+                } else if (cctvQuantity === 3) {
+                    cctvTotal = 35200;
+                } else if (cctvQuantity === 4) {
+                    cctvTotal = 46200;
+                } else { // For quantities greater than 4, calculate based on the pattern
+                    cctvTotal = 46200 + (cctvQuantity - 4) * 11000;
+                }
+                total += cctvTotal;
+                summaryHTML += `<div class="summary-item"><span class="summary-title">GiGAeyes CCTV (x${cctvQuantity})</span><span class="summary-price">+ ${cctvTotal.toLocaleString()}원</span></div>`;
+                elements.cctvPriceInfo.textContent = `+ ${cctvTotal.toLocaleString()}원`;
+                currentSelections.cctv = cctvQuantity;
+            } else {
+                elements.cctvPriceInfo.textContent = '';
+            }
+
 
             // --- Discounts ---
             let totalDiscount = 0;
@@ -400,7 +444,7 @@
                 totalDiscount += hiOrderDiscount;
                 discountHTML += `<div class="summary-item"><span class="summary-title text-red-600">하이오더 결합 할인</span><span class="summary-price text-red-600 font-semibold">- ${hiOrderDiscount.toLocaleString()}원</span></div>`;
             }
-            if (currentSelections.addons.includes('GiGAeyes (CCTV)')) {
+            if (cctvQuantity > 0) {
                 const gigaeyesDiscount = Math.round(internetPlan.price * 0.1);
                 totalDiscount += gigaeyesDiscount;
                 discountHTML += `<div class="summary-item"><span class="summary-title text-red-600">GiGAeyes 결합 할인</span><span class="summary-price text-red-600 font-semibold">- ${gigaeyesDiscount.toLocaleString()}원</span></div>`;
