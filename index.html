@@ -87,6 +87,31 @@
             padding: 1rem;
             margin-top: 1rem;
         }
+        .script-box {
+            background-color: #f3f4f6;
+            border: 1px solid #e5e7eb;
+            border-radius: 0.5rem;
+            padding: 1rem;
+            font-size: 0.875rem;
+            color: #374151;
+            white-space: pre-wrap;
+        }
+        .copy-button {
+            background-color: #2563eb;
+            color: white;
+            border: none;
+            border-radius: 0.5rem;
+            padding: 0.75rem 1.5rem;
+            font-size: 1rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            width: 100%;
+            margin-top: 1rem;
+        }
+        .copy-button:hover {
+            background-color: #1d4ed8;
+        }
     </style>
 </head>
 <body class="bg-gray-50 text-gray-800">
@@ -120,6 +145,14 @@
                         <div>
                             <label class="font-semibold text-gray-700">전화 (선택)</label>
                             <div class="grid grid-cols-1 sm:grid-cols-3 gap-2 mt-2" id="phone-options"></div>
+                        </div>
+                         <!-- Installation Options -->
+                        <div class="pt-4 border-t">
+                            <label class="font-semibold text-gray-700">설치 옵션</label>
+                             <div class="flex items-center mt-2">
+                                <input type="checkbox" id="weekend-install" name="weekend-install" class="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500" onchange="calculateTotal()">
+                                <label for="weekend-install" class="ml-2 block text-sm text-gray-900">주말 설치 (할증 적용)</label>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -171,6 +204,39 @@
                 </div>
             </div>
         </div>
+        
+        <!-- Script Generation Section -->
+        <div class="mt-8 bg-white p-6 rounded-2xl shadow-lg">
+            <h2 class="text-2xl font-bold mb-6 text-center">📄 고객 안내 문자 스크립트 (상담원 참고용)</h2>
+            <div class="space-y-6">
+                <div>
+                    <h3 class="text-lg font-bold mb-3">1. 스크립트 선택</h3>
+                    <div id="script-selector" class="flex flex-wrap gap-3">
+                        <label for="select-memo" class="flex-1 option-label text-center">
+                            <input type="radio" id="select-memo" name="script-select" value="memo" class="hidden" checked>
+                            전산 메모
+                        </label>
+                        <label for="select-product-info" class="flex-1 option-label text-center">
+                            <input type="radio" id="select-product-info" name="script-select" value="product-info" class="hidden">
+                            상품 안내 문자
+                        </label>
+                        <label for="select-completion" class="flex-1 option-label text-center">
+                            <input type="radio" id="select-completion" name="script-select" value="completion" class="hidden">
+                            가입 완료 문자
+                        </label>
+                    </div>
+                </div>
+
+                <div>
+                    <h3 class="text-lg font-bold mb-2">2. 스크립트 내용</h3>
+                    <div id="script-memo-box" class="script-box"></div>
+                    <div id="script-product-info-box" class="script-box hidden"></div>
+                    <div id="script-completion-box" class="script-box hidden"></div>
+                </div>
+                
+                <button id="copy-selected-script-button" class="copy-button">선택한 스크립트 복사</button>
+            </div>
+        </div>
     </div>
 
     <!-- Help Modal -->
@@ -187,29 +253,57 @@
     <script>
         // --- DATA ---
         const pricingData = {
-          "internet": [
-            { "name": "오피스넷 세이브 (100M)", "price": 30800 },
-            { "name": "오피스넷 베이직 (500M)", "price": 44000 },
-            { "name": "오피스넷 에센스 (1G)", "price": 49500 }
-          ],
-          "tv": [
-            { "name": "Genie TV 슬림", "price": 11880 },
-            { "name": "Genie TV 라이트", "price": 14256 },
-            { "name": "Genie TV 에센스", "price": 18216 }
-          ],
-          "phone": [
-             { "name": "일반 전화", "price": 5148 },
-             { "name": "인터넷 전화", "price": 1100 }
-          ],
-          "fixedIP": [
-             { "name": "고정IP (100M)", "price": 11000 },
-             { "name": "고정IP (500M)", "price": 22000 },
-             { "name": "고정IP (1G)", "price": 27500 }
-          ],
-          "addOns": [
-            { "name": "카드결제기 (VAN)", "price": 0, "description": "인터넷 요금 4,400원 추가 할인", "helpKey": "addon-van" },
-            { "name": "하이오더 (테이블오더)", "price": 22000, "description": "인터넷 요금 5,500원 추가 할인", "helpKey": "addon-hiorder" },
-          ]
+            "internet": [
+                { "name": "오피스넷 세이브 (100M)", "price": 30800 },
+                { "name": "오피스넷 베이직 (500M)", "price": 44000 },
+                { "name": "오피스넷 에센스 (1G)", "price": 49500 }
+            ],
+            "tv": [
+                { "name": "Genie TV 베이직 (236채널)", "price": 15400, "setTopBox": "기가지니A" },
+                { "name": "Genie TV 라이트 (240채널)", "price": 16500, "setTopBox": "기가지니A" },
+                { "name": "Genie TV 에센스 (266채널)", "price": 19800, "setTopBox": "기가지니A" }
+            ],
+            "phone": [
+                { "name": "일반 전화", "price": 6050, "type": "general" },
+                { "name": "인터넷 전화 (070)", "price": 6294, "type": "voip" }
+            ],
+            "fixedIP": [
+                { "name": "고정IP (100M)", "price": 11000 },
+                { "name": "고정IP (500M)", "price": 22000 },
+                { "name": "고정IP (1G)", "price": 27500 }
+            ],
+            "addOns": [
+                { "name": "카드결제기 (VAN)", "price": 0, "description": "인터넷 요금 4,400원 추가 할인", "helpKey": "addon-van" },
+                { "name": "하이오더 (테이블오더)", "price": 22000, "description": "인터넷 요금 5,500원 추가 할인", "helpKey": "addon-hiorder" },
+            ],
+            "installationFees": {
+                "weekday": {
+                    "internet_only": 36000,
+                    "internet_tv": 56200,
+                    "internet_general_phone": 68000,
+                    "internet_voip_phone": 60000,
+                    "internet_tv_general_phone": 88200,
+                    "internet_tv_voip_phone": 80200
+                },
+                "weekend": {
+                    "internet_only": 45000,
+                    "internet_tv": 71250,
+                    "internet_general_phone": 86000,
+                    "internet_voip_phone": 78000,
+                    "internet_tv_general_phone": 112250,
+                    "internet_tv_voip_phone": 104250
+                }
+            },
+             "discounts": {
+                "phone_bundle": {
+                    "speed_500m": 2200,
+                    "speed_1g": 2200
+                },
+                "tv_bundle": {
+                    "speed_500m": 5500,
+                    "speed_1g": 5500
+                }
+            }
         };
 
         const benefitData = [
@@ -245,6 +339,12 @@
             modalClose: document.getElementById('modal-close'),
             cctvQuantity: document.getElementById('cctv-quantity'),
             cctvPriceInfo: document.getElementById('cctv-price-info'),
+            weekendInstall: document.getElementById('weekend-install'),
+            scriptMemoBox: document.getElementById('script-memo-box'),
+            scriptProductInfoBox: document.getElementById('script-product-info-box'),
+            scriptCompletionBox: document.getElementById('script-completion-box'),
+            scriptSelector: document.getElementById('script-selector'),
+            copySelectedScriptButton: document.getElementById('copy-selected-script-button'),
         };
 
         let currentSelections = {};
@@ -279,7 +379,7 @@
         function populateOptions() {
             // Populate basic options
             elements.internetOptions.innerHTML = pricingData.internet.map((s, i) => createOption('radio', 'internet', s.name, s.name, s.price, i === 0)).join('');
-            elements.tvOptions.innerHTML = createOption('radio', 'tv', 'none', '선택 안함', 0, true) + pricingData.tv.map(s => createOption('radio', 'tv', s.name, s.name, s.price)).join('');
+            elements.tvOptions.innerHTML = createOption('radio', 'tv', 'none', '선택 안함', 0, true) + pricingData.tv.map(s => createOption('radio', 'tv', s.name, `${s.name} + ${s.setTopBox}`, s.price)).join('');
             elements.phoneOptions.innerHTML = createOption('radio', 'phone', 'none', '선택 안함', 0, true) + pricingData.phone.map(s => createOption('radio', 'phone', s.name, s.name, s.price)).join('');
             elements.fixedIpSelector.innerHTML = createOption('radio', 'fixed-ip', 'none', '선택 안함', 0, true) + pricingData.fixedIP.map(s => createOption('radio', 'fixed-ip', s.name, s.name, s.price)).join('');
             
@@ -292,8 +392,9 @@
             const existingRouterChoice = document.querySelector('input[name="router-100m"]:checked')?.value || 'none';
 
             let total = 0;
+            let preDiscountTotal = 0;
             let summaryHTML = '';
-            currentSelections = { internet: null, tv: null, phone: null, fixedIP: null, addons: [], cctv: 0, totalPrice: 0, benefit: 0 };
+            currentSelections = { internet: null, tv: null, phone: null, fixedIP: null, addons: [], cctv: 0, router: null, totalPrice: 0, preDiscountPrice: 0, benefit: 0, installationFee: 0 };
 
             const getSelected = (name) => document.querySelector(`input[name="${name}"]:checked`)?.value;
 
@@ -303,12 +404,14 @@
             const selectedFixedIpName = getSelected('fixed-ip');
             const selectedAddons = Array.from(document.querySelectorAll('input[name="addon"]:checked'));
             const cctvQuantity = parseInt(elements.cctvQuantity.value) || 0;
+            const isWeekendInstall = elements.weekendInstall.checked;
 
             if (!selectedInternetName) return;
 
             // --- Base Prices ---
             const internetPlan = pricingData.internet.find(p => p.name === selectedInternetName);
             total += internetPlan.price;
+            preDiscountTotal += internetPlan.price;
             summaryHTML += `<div class="summary-item"><span class="summary-title">${internetPlan.name}</span><span class="summary-price">+ ${internetPlan.price.toLocaleString()}원</span></div>`;
             currentSelections.internet = internetPlan.name;
             
@@ -332,7 +435,9 @@
                 if (selectedRouter === 'rent') {
                     const routerFee = 1100;
                     total += routerFee;
+                    preDiscountTotal += routerFee;
                     summaryHTML += `<div class="summary-item"><span class="summary-title">일반 공유기 임대</span><span class="summary-price">+ ${routerFee.toLocaleString()}원</span></div>`;
+                    currentSelections.router = '일반 공유기 임대';
                 }
             } else if (internetPlan.name.includes('500M')) {
                 wifiOptionsContainer.innerHTML = `
@@ -343,21 +448,24 @@
                         </p>
                         <a href="https://product.kt.com/wDic/productDetail.do?ItemCode=1401" target="_blank" class="text-xs text-blue-600 hover:underline">제품 상세 정보 &rarr;</a>
                     </div>`;
+                currentSelections.router = 'GiGA WiFi home ax (무료)';
             } else if (internetPlan.name.includes('1G')) {
                 wifiOptionsContainer.innerHTML = `
                      <div class="promo-box">
-                        <p class="font-semibold text-blue-800">🎁 무료 와이파이: KT WiFi 7D</p>
-                        <p class="text-sm text-blue-700 mt-1">
-                            <span class="font-bold">ㄴ 프로모션:</span> '에센스(1Gbps)' 이상 요금제 신규 가입 시 무료 제공 (25년 8/31까지, 선착순 5만명)
-                        </p>
-                        <a href="https://product.kt.com/wDic/productDetail.do?ItemCode=1633" target="_blank" class="text-xs text-blue-600 hover:underline">제품 상세 정보 &rarr;</a>
+                         <p class="font-semibold text-blue-800">🎁 무료 와이파이: KT WiFi 7D</p>
+                         <p class="text-sm text-blue-700 mt-1">
+                             <span class="font-bold">ㄴ 프로모션:</span> '에센스(1Gbps)' 이상 요금제 신규 가입 시 무료 제공 (25년 8/31까지, 선착순 5만명)
+                         </p>
+                         <a href="https://product.kt.com/wDic/productDetail.do?ItemCode=1633" target="_blank" class="text-xs text-blue-600 hover:underline">제품 상세 정보 &rarr;</a>
                     </div>`;
+                currentSelections.router = 'KT WiFi 7D (무료)';
             }
 
 
             const tvPlan = pricingData.tv.find(p => p.name === selectedTvName);
             if (tvPlan) {
                 total += tvPlan.price;
+                preDiscountTotal += tvPlan.price;
                 summaryHTML += `<div class="summary-item"><span class="summary-title">TV: ${tvPlan.name}</span><span class="summary-price">+ ${tvPlan.price.toLocaleString()}원</span></div>`;
                 currentSelections.tv = tvPlan.name;
             }
@@ -365,6 +473,7 @@
             const phonePlan = pricingData.phone.find(p => p.name === selectedPhoneName);
             if (phonePlan) {
                 total += phonePlan.price;
+                preDiscountTotal += phonePlan.price;
                 summaryHTML += `<div class="summary-item"><span class="summary-title">${phonePlan.name}</span><span class="summary-price">+ ${phonePlan.price.toLocaleString()}원</span></div>`;
                 currentSelections.phone = phonePlan.name;
             }
@@ -372,6 +481,7 @@
             const fixedIpPlan = pricingData.fixedIP.find(p => p.name === selectedFixedIpName);
             if (fixedIpPlan) {
                 total += fixedIpPlan.price;
+                preDiscountTotal += fixedIpPlan.price;
                 summaryHTML += `<div class="summary-item"><span class="summary-title">${fixedIpPlan.name}</span><span class="summary-price">+ ${fixedIpPlan.price.toLocaleString()}원</span></div>`;
                 currentSelections.fixedIP = fixedIpPlan.name;
             }
@@ -386,6 +496,7 @@
                 const addonPlan = pricingData.addOns.find(a => a.name === addonName);
                 if (addonPlan) {
                     total += addonPlan.price;
+                    preDiscountTotal += addonPlan.price;
                     summaryHTML += `<div class="summary-item"><span class="summary-title">${addonPlan.name}</span><span class="summary-price">+ ${addonPlan.price.toLocaleString()}원</span></div>`;
                     currentSelections.addons.push(addonName);
                 }
@@ -394,18 +505,14 @@
             // --- CCTV Logic ---
             if (cctvQuantity > 0) {
                 let cctvTotal = 0;
-                if (cctvQuantity === 1) {
-                    cctvTotal = 13200;
-                } else if (cctvQuantity === 2) {
-                    cctvTotal = 24200;
-                } else if (cctvQuantity === 3) {
-                    cctvTotal = 35200;
-                } else if (cctvQuantity === 4) {
-                    cctvTotal = 46200;
-                } else { // For quantities greater than 4, calculate based on the pattern
-                    cctvTotal = 46200 + (cctvQuantity - 4) * 11000;
-                }
+                if (cctvQuantity === 1) cctvTotal = 13200;
+                else if (cctvQuantity === 2) cctvTotal = 24200;
+                else if (cctvQuantity === 3) cctvTotal = 35200;
+                else if (cctvQuantity === 4) cctvTotal = 46200;
+                else cctvTotal = 46200 + (cctvQuantity - 4) * 11000;
+                
                 total += cctvTotal;
+                preDiscountTotal += cctvTotal;
                 summaryHTML += `<div class="summary-item"><span class="summary-title">GiGAeyes CCTV (x${cctvQuantity})</span><span class="summary-price">+ ${cctvTotal.toLocaleString()}원</span></div>`;
                 elements.cctvPriceInfo.textContent = `+ ${cctvTotal.toLocaleString()}원`;
                 currentSelections.cctv = cctvQuantity;
@@ -413,25 +520,20 @@
                 elements.cctvPriceInfo.textContent = '';
             }
 
-
             // --- Discounts ---
             let totalDiscount = 0;
             let discountHTML = '';
-            const internetSpeed = internetPlan.name.includes('100M') ? '100M' : internetPlan.name.includes('500M') ? '500M' : '1G';
+            const internetSpeed = internetPlan.name.includes('100M') ? '100m' : internetPlan.name.includes('500M') ? '500m' : '1g';
 
-            let internetDiscount = 0;
-            let reason = '';
-            if (tvPlan && (internetSpeed === '500M' || internetSpeed === '1G')) {
-                internetDiscount = 5500;
-                reason = '인터넷+TV 결합';
-            } else if (phonePlan && (internetSpeed === '500M' || internetSpeed === '1G')) {
-                internetDiscount = 2200;
-                reason = '인터넷+전화 결합';
+            let bundleDiscount = 0;
+            if (tvPlan && (internetSpeed === '500m' || internetSpeed === '1g')) {
+                bundleDiscount = pricingData.discounts.tv_bundle[`speed_${internetSpeed}`];
+                if(bundleDiscount) discountHTML += `<div class="summary-item"><span class="summary-title text-red-600">인터넷+TV 결합 할인</span><span class="summary-price text-red-600 font-semibold">- ${bundleDiscount.toLocaleString()}원</span></div>`;
+            } else if (phonePlan && (internetSpeed === '500m' || internetSpeed === '1g')) {
+                bundleDiscount = pricingData.discounts.phone_bundle[`speed_${internetSpeed}`];
+                 if(bundleDiscount) discountHTML += `<div class="summary-item"><span class="summary-title text-red-600">인터넷+전화 결합 할인</span><span class="summary-price text-red-600 font-semibold">- ${bundleDiscount.toLocaleString()}원</span></div>`;
             }
-            if (internetDiscount > 0) {
-                totalDiscount += internetDiscount;
-                discountHTML += `<div class="summary-item"><span class="summary-title text-red-600">${reason} 할인</span><span class="summary-price text-red-600 font-semibold">- ${internetDiscount.toLocaleString()}원</span></div>`;
-            }
+            totalDiscount += bundleDiscount || 0;
 
             // Additional SOHO solution discounts
             if (currentSelections.addons.includes('카드결제기 (VAN)')) {
@@ -450,24 +552,41 @@
                 discountHTML += `<div class="summary-item"><span class="summary-title text-red-600">GiGAeyes 결합 할인</span><span class="summary-price text-red-600 font-semibold">- ${gigaeyesDiscount.toLocaleString()}원</span></div>`;
             }
 
-
             if (totalDiscount > 0) {
                 summaryHTML += `<div class="summary-item pt-4 mt-2 border-t border-dashed"><span class="summary-title font-bold text-red-600">결합 할인 내역</span><span class="summary-price"></span></div>` + discountHTML;
             }
             
             total -= totalDiscount;
 
-            // Benefit
-            let benefitKey = `${internetSpeed}_`;
-            benefitKey += tvPlan ? 'TV결합' : '단독';
+            // --- Installation Fee ---
+            const feeSchedule = isWeekendInstall ? pricingData.installationFees.weekend : pricingData.installationFees.weekday;
+            let installFee = 0;
+            if (tvPlan && phonePlan) {
+                installFee = phonePlan.type === 'general' ? feeSchedule.internet_tv_general_phone : feeSchedule.internet_tv_voip_phone;
+            } else if (tvPlan) {
+                installFee = feeSchedule.internet_tv;
+            } else if (phonePlan) {
+                installFee = phonePlan.type === 'general' ? feeSchedule.internet_general_phone : feeSchedule.internet_voip_phone;
+            } else {
+                installFee = feeSchedule.internet_only;
+            }
+            currentSelections.installationFee = installFee;
+            summaryHTML += `<div class="summary-item pt-4 mt-2 border-t"><span class="summary-title font-bold">설치비 (1회 청구)</span><span class="summary-price font-bold">+ ${installFee.toLocaleString()}원</span></div>`;
+
+
+            // --- Benefit ---
+            let benefitKey = internetPlan.name.includes('100M') ? '100M' : internetPlan.name.includes('500M') ? '500M' : '1G';
+            benefitKey += tvPlan ? '_TV결합' : '_단독';
             const benefit = benefitData.find(b => b.condition === benefitKey)?.benefit || 0;
             currentSelections.benefit = benefit;
+            currentSelections.preDiscountPrice = preDiscountTotal;
+            currentSelections.totalPrice = Math.max(0, total);
+
 
             // Update UI
             elements.summary.innerHTML = summaryHTML || `<p class="text-center text-gray-500 p-8">서비스를 선택해주세요.</p>`;
-            elements.totalPrice.textContent = `${Math.max(0, total).toLocaleString()}원`;
+            elements.totalPrice.textContent = `${currentSelections.totalPrice.toLocaleString()}원`;
             elements.benefitAmount.textContent = `${benefit.toLocaleString()}원`;
-            currentSelections.totalPrice = total;
 
             document.querySelectorAll('input[type="radio"], input[type="checkbox"]').forEach(input => {
                 const label = input.closest('.option-label');
@@ -475,8 +594,111 @@
                     label.classList.toggle('selected', input.checked);
                 }
             });
+            
+            updateScripts();
         }
         
+        function updateScripts() {
+            if (!currentSelections.internet) return;
+
+            // --- 1. Memo Script ---
+            let products = [];
+            if (currentSelections.internet) products.push(currentSelections.internet);
+            if (currentSelections.tv) products.push(currentSelections.tv);
+            if (currentSelections.phone) products.push(currentSelections.phone);
+            if (currentSelections.router) products.push(currentSelections.router);
+            if (currentSelections.fixedIP) products.push(currentSelections.fixedIP);
+            if (currentSelections.addons.length > 0) products.push(...currentSelections.addons);
+            if (currentSelections.cctv > 0) products.push(`GiGAeyes CCTV (x${currentSelections.cctv})`);
+
+            const memoScript = `[KT 미소 상담 메모]
+1. 상품 : ${products.join(' + ')}
+2. 요금 : (할인전)${currentSelections.preDiscountPrice.toLocaleString()}원 / (할인후)${currentSelections.totalPrice.toLocaleString()}원
+3. 사은품 총액 : ${currentSelections.benefit.toLocaleString()} 원 (예상)
+4. 설치비 : ${currentSelections.installationFee.toLocaleString()}원
+6. 기타 : 이사 여부 [ ] / 희망설치일자 [    년  월  일]
+
+--- 필수 안내사항 ---
+고객 상황에따른 필수안내사항 완료
+1.  기존 가족 또는 본인 명의 회선 있는 경우 유지 필요 안내 완료
+2.  이사 고객 Y / 추후 소명 발생 시 관련 서류 제출 동의 수긍
+3.  인터넷 설치 후 고객센터로 후결합 요청 안내 완료`;
+            elements.scriptMemoBox.textContent = memoScript;
+
+            // --- 2. Product Info Script ---
+            const productInfoScript = `[미소] 상품 & 사은품 요약 안내
+안녕하세요, 미소 인터넷 입니다.
+고객님께서 오늘 상담 받으신 상품 안내드립니다.
+
+[유선 상품]
+▶️ 인터넷: ${currentSelections.internet || '미선택'}
+▶️ TV: ${currentSelections.tv || '미선택'}
+▶️ 집전화: ${currentSelections.phone || '미선택'}
+▶️ 공유기: ${currentSelections.router || '미선택'}
+${currentSelections.fixedIP ? `▶️ 고정IP: ${currentSelections.fixedIP}` : ''}
+${currentSelections.addons.length > 0 ? `▶️ 부가서비스: ${currentSelections.addons.join(', ')}` : ''}
+${currentSelections.cctv > 0 ? `▶️ CCTV: GiGAeyes (x${currentSelections.cctv})` : ''}
+
+[최종 요금 및 혜택]
+▶️ 월 ${currentSelections.totalPrice.toLocaleString()}원
+▶️ 사은품 ${currentSelections.benefit.toLocaleString()} 원
+
+* 설치비 ${currentSelections.installationFee.toLocaleString()}원 첫 달 1회 청구됩니다.
+* 혜택은 실시간으로 바뀔 수 있다는 점 안내드립니다.
+* 3년 약정 기준
+미소 드림.`;
+            elements.scriptProductInfoBox.textContent = productInfoScript;
+
+            // --- 3. Completion Script ---
+            const completionScript = `[미소] 가입 완료 안내
+안녕하세요, 고객님.
+미소 인터넷 부서입니다.
+✅ 계약이 완료되었어요, 아래 내용은 계약서와 동일한 효력이 있으니 꼼꼼히 읽어주세요.
+⚠️ 3년 약정이며, 아래와 같은 상황에 해당하면 받으셨던 사은품은 환수 됩니다.
+① 1년 이내 해지
+② 3개월 (90일) 이상 정지
+③ 1년 이내 요금제 하향 (상향 시에는 환수 되지 않습니다!)
+④ 3개월 이내 명의변경
+⑤ 개통 1개월 이내 결제수단 지로청구서로 변경
+⚠️ 신규 가입 후 기존에 인터넷은 꼭 해지 해주세요. 자동해지되지 않으며 이럴 경우 요금이 이중 부과되어요.
+⚠️ 3년 이내 해지 시 통신사 본사에 위약금 (할인 반환금) 및 통신사에 따라 면제된 와이파이 / 통신기기 설치비 반환이 필요할 수 있어요.
+✅ 가입 상품 안내
+▶️ ${products.join(' + ')}
+▶️ 월 ${currentSelections.totalPrice.toLocaleString()}원 (결합 O)
+▶️ 설치비 ${currentSelections.installationFee.toLocaleString()}원 첫 달 부과
+▶️ 사은품 ${currentSelections.benefit.toLocaleString()} 원
+✅사은품은 설치 후 7일 이내 자동으로 지급되나 평일기준 5시 이전 개통 받았다고 문자 주시면 당일입금 도움드리겠습니다.
+[미소를 소개해주세요]
+지인이 미소에서 인터넷 설치하면 소개해주신 분에게 3만원 드려요.
+▶ 지인에게 추천하고 3O,OOO원 받기 (↓)
+https://get.miso.kr/pZbfsUPthzb
+미소 전담 상담사 김홍식 드림.`;
+            elements.scriptCompletionBox.textContent = completionScript;
+        }
+        
+        function updateScriptDisplay() {
+            const selectedValue = document.querySelector('input[name="script-select"]:checked').value;
+            
+            // Hide all script boxes
+            elements.scriptMemoBox.classList.add('hidden');
+            elements.scriptProductInfoBox.classList.add('hidden');
+            elements.scriptCompletionBox.classList.add('hidden');
+
+            // Show the selected one
+            if (selectedValue === 'memo') {
+                elements.scriptMemoBox.classList.remove('hidden');
+            } else if (selectedValue === 'product-info') {
+                elements.scriptProductInfoBox.classList.remove('hidden');
+            } else if (selectedValue === 'completion') {
+                elements.scriptCompletionBox.classList.remove('hidden');
+            }
+
+            // Update label styles
+            document.querySelectorAll('input[name="script-select"]').forEach(radio => {
+                radio.closest('.option-label').classList.toggle('selected', radio.checked);
+            });
+        }
+
         function openHelpModal(key) {
             const data = helpTexts[key];
             if (data) {
@@ -488,11 +710,43 @@
 
         function closeHelpModal() { elements.helpModal.classList.add('hidden'); }
         
+        function copySelectedScript() {
+            const selectedValue = document.querySelector('input[name="script-select"]:checked').value;
+            let textToCopy = '';
+            
+            if (selectedValue === 'memo') {
+                textToCopy = elements.scriptMemoBox.textContent;
+            } else if (selectedValue === 'product-info') {
+                textToCopy = elements.scriptProductInfoBox.textContent;
+            } else if (selectedValue === 'completion') {
+                textToCopy = elements.scriptCompletionBox.textContent;
+            }
+            
+            const textArea = document.createElement("textarea");
+            textArea.value = textToCopy;
+            document.body.appendChild(textArea);
+            textArea.select();
+            
+            try {
+                document.execCommand('copy');
+                alert('스크립트가 복사되었습니다!');
+            } catch (err) {
+                console.error('복사 실패:', err);
+                alert('복사에 실패했습니다. 브라우저 설정을 확인해주세요.');
+            } finally {
+                document.body.removeChild(textArea);
+            }
+        }
+
         // --- Event Listeners ---
         document.addEventListener('DOMContentLoaded', () => {
             populateOptions();
             calculateTotal();
+            updateScriptDisplay(); // Initial display
             
+            elements.scriptSelector.addEventListener('change', updateScriptDisplay);
+            elements.copySelectedScriptButton.addEventListener('click', copySelectedScript);
+
             document.body.addEventListener('click', function(e) { 
                 if (e.target.classList.contains('help-toggle')) {
                     const key = e.target.dataset.key;
